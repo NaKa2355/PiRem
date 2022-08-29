@@ -8,12 +8,10 @@ type Device struct {
 	reqchan    chan<- tx.Request
 }
 
-func NewDev(pluginPath string, buffSize uint16, reqchan chan tx.Request) Device {
-	dev := Device{}
+func (dev *Device) Init(pluginPath string, buffSize uint16, reqchan chan tx.Request) {
 	dev.pluginPath = pluginPath
 	dev.buffSize = buffSize
 	dev.reqchan = reqchan
-	return dev
 }
 
 func (dev Device) GetPluginPath() string {
@@ -25,13 +23,6 @@ func (dev Device) GetBuffSize() uint16 {
 }
 
 func (dev Device) SendReq(req tx.Request) tx.Responce {
-	dev.reqchan <- req
-	return req.RecvResp()
-}
-
-func (dev Device) RemoveDev() tx.Responce {
-	respChan := make(<-chan tx.ResultResp)
-	req := tx.RemoveDevReq{RespChan: respChan}
 	dev.reqchan <- req
 	return req.RecvResp()
 }

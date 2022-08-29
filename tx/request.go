@@ -15,11 +15,14 @@ type ReqCases struct {
 }
 
 type SendIRReq struct {
-	RespChan <-chan ResultResp
+	RespChan chan ResultResp
 	Param    ir.RawData
 }
 
 func (req SendIRReq) Match(cases ReqCases) {
+	if cases.SendIR == nil {
+		return
+	}
 	cases.SendIR(req)
 }
 
@@ -28,10 +31,13 @@ func (req SendIRReq) RecvResp() Responce {
 }
 
 type ReceiveIRReq struct {
-	RespChan <-chan ResultIRRawDataResp
+	RespChan chan ResultIRRawDataResp
 }
 
 func (req ReceiveIRReq) Match(cases ReqCases) {
+	if cases.ReceiveIR == nil {
+		return
+	}
 	cases.ReceiveIR(req)
 }
 
@@ -40,10 +46,13 @@ func (req ReceiveIRReq) RecvResp() Responce {
 }
 
 type GetBuffSizeReq struct {
-	RespChan <-chan ResultUInt32Resp
+	RespChan chan ResultUInt32Resp
 }
 
 func (req GetBuffSizeReq) Match(cases ReqCases) {
+	if cases.GetBuffSize == nil {
+		return
+	}
 	cases.GetBuffSize(req)
 }
 
@@ -52,10 +61,13 @@ func (req GetBuffSizeReq) RecvResp() Responce {
 }
 
 type RemoveDevReq struct {
-	RespChan <-chan ResultResp
+	RespChan chan ResultResp
 }
 
 func (req RemoveDevReq) Match(cases ReqCases) {
+	if cases.RemoveDev == nil {
+		return
+	}
 	cases.RemoveDev(req)
 }
 
