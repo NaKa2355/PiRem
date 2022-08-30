@@ -1,5 +1,7 @@
 package server
 
+//デーモンのサーバー
+
 import (
 	"fmt"
 	"net/http"
@@ -9,11 +11,11 @@ import (
 )
 
 type ServerHandlers struct {
-	SendIRHandler func(string, ir.RawData) error
-	ReceiveIRData func(string) (ir.RawData, error)
-	GetDevices    func() (map[string]irdevice.Device, error)
-	GetDevice     func(string) (irdevice.Device, error)
-	ErrHandler    func(error)
+	SendIRHandler     func(string, ir.RawData) error
+	RecvIRDataHandler func(string) (ir.RawData, error)
+	GetDevicesHandler func() (map[string]irdevice.Device, error)
+	GetDeviceHandler  func(string) (irdevice.Device, error)
+	ErrHandler        func(error)
 }
 
 type DaemonServer struct {

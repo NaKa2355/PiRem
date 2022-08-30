@@ -1,5 +1,7 @@
 package server
 
+//クライアントから赤外線の受信命令が来た時のハンドラ
+
 import (
 	"fmt"
 	"net/http"
@@ -11,6 +13,7 @@ import (
 func (s DaemonServer) receiveHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(r.URL.Path)
 	pathes := strings.Split(r.URL.Path, "/")
+	w.Header().Set("Content-Type", "text/json")
 
 	if len(pathes) != 3 {
 		w.WriteHeader(http.StatusBadRequest)
@@ -31,7 +34,7 @@ func (s DaemonServer) receiveHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rawData, err := s.handlers.ReceiveIRData(dev_name)
+	rawData, err := s.handlers.RecvIRDataHandler(dev_name)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(s.ErrorToJson(err))

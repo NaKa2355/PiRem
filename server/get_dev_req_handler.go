@@ -11,6 +11,7 @@ import (
 func (s DaemonServer) getDevice(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(r.URL.Path)
 	pathes := strings.Split(r.URL.Path, "/")
+	w.Header().Set("Content-Type", "text/json")
 
 	if len(pathes) != 3 {
 		w.WriteHeader(http.StatusBadRequest)
@@ -31,7 +32,7 @@ func (s DaemonServer) getDevice(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dev, err := s.handlers.GetDevice(dev_name)
+	dev, err := s.handlers.GetDeviceHandler(dev_name)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(s.ErrorToJson(err))

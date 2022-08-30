@@ -1,5 +1,7 @@
 package server
 
+//クライアントから赤外線の送信要求が来た時のサーバーのハンドラ
+
 import (
 	"io"
 	"net/http"
@@ -10,7 +12,7 @@ import (
 
 func (s DaemonServer) sendHandler(w http.ResponseWriter, r *http.Request) {
 	pathes := strings.Split(r.URL.Path, "/")
-
+	w.Header().Set("Content-Type", "text/json")
 	if len(pathes) != 3 {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(s.ErrorToJson(ErrInvaildURLPath))

@@ -60,10 +60,10 @@ func (d Daemon) getDeviceHandler(devName string) (irdevice.Device, error) {
 
 func (d Daemon) Start(server_port uint16) {
 	handler := server.ServerHandlers{
-		SendIRHandler: d.sendIRHandler,
-		ReceiveIRData: d.receiveHandler,
-		GetDevices:    d.getDevicesHandler,
-		GetDevice:     d.getDeviceHandler,
+		SendIRHandler:     d.sendIRHandler,
+		RecvIRDataHandler: d.receiveHandler,
+		GetDevicesHandler: d.getDevicesHandler,
+		GetDeviceHandler:  d.getDeviceHandler,
 		ErrHandler: func(err error) {
 			d.ErrHandler(err)
 		},
