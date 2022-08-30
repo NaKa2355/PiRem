@@ -4,6 +4,7 @@ import "encoding/json"
 
 type Device struct {
 	Name       string          `json:"name"`
+	QueueLen   int             `json:"queue_len"`
 	PluginPath string          `json:"plugin_path"`
 	Config     json.RawMessage `json:"config"`
 }
