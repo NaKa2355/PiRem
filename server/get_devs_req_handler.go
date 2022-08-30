@@ -16,12 +16,14 @@ func (s DaemonServer) getDevices(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(s.ErrorToJson(err))
+		return
 	}
 
 	resp, err := respjson.DevicesToJson(devs)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(s.ErrorToJson(err))
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)

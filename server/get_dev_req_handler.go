@@ -28,18 +28,21 @@ func (s DaemonServer) getDevice(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(s.ErrorToJson(err))
+		return
 	}
 
 	dev, err := s.handlers.GetDevice(dev_name)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(s.ErrorToJson(err))
+		return
 	}
 
 	resp, err := respjson.DeviceToJson(dev)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(s.ErrorToJson(err))
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)

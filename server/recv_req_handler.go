@@ -28,18 +28,21 @@ func (s DaemonServer) receiveHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(s.ErrorToJson(err))
+		return
 	}
 
 	rawData, err := s.handlers.ReceiveIRData(dev_name)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(s.ErrorToJson(err))
+		return
 	}
 
 	resp, err := respjson.IRRawDataToJson(rawData)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(s.ErrorToJson(err))
+		return
 	}
 	w.Write(resp)
 }

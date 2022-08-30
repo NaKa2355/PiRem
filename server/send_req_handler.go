@@ -42,6 +42,7 @@ func (s DaemonServer) sendHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(s.ErrorToJson(err))
+		return
 	}
 
 	err = s.handlers.SendIRHandler(dev_name, rawData)
