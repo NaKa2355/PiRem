@@ -1,4 +1,4 @@
-package respjson
+package response
 
 import "encoding/json"
 

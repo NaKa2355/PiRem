@@ -5,14 +5,13 @@ package server
 import (
 	"fmt"
 	"net/http"
+	"pirem/irdata"
 	"pirem/irdevice"
-
-	"github.com/NaKa2355/ir"
 )
 
 type ServerHandlers struct {
-	SendIRHandler     func(string, ir.RawData) error
-	RecvIRDataHandler func(string) (ir.RawData, error)
+	SendIRHandler     func(string, irdata.Data) error
+	RecvIRDataHandler func(string) (irdata.Data, error)
 	GetDevicesHandler func() (map[string]irdevice.Device, error)
 	GetDeviceHandler  func(string) (irdevice.Device, error)
 	ErrHandler        func(error)

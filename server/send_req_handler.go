@@ -3,10 +3,11 @@ package server
 //クライアントから赤外線の送信要求が来た時のサーバーのハンドラ
 
 import (
+	"encoding/json"
 	"io"
 	"net/http"
 	"net/url"
-	"pirem/reqjson"
+	"pirem/irdata"
 	"strings"
 )
 
@@ -33,7 +34,8 @@ func (s DaemonServer) sendHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rawData, err := reqjson.JsonToIRRawData(buf)
+	var irData irdata.Data
+	err = json.Unmarshal(buf, &irData)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(s.ErrorToJson(err))
@@ -47,7 +49,7 @@ func (s DaemonServer) sendHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.handlers.SendIRHandler(dev_name, rawData)
+	err = s.handlers.SendIRHandler(dev_name, irData)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(s.ErrorToJson(err))

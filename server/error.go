@@ -2,7 +2,7 @@ package server
 
 import (
 	"errors"
-	"pirem/respjson"
+	"pirem/json/response"
 )
 
 var (
@@ -11,7 +11,7 @@ var (
 )
 
 func (s DaemonServer) ErrorToJson(inputErr error) []byte {
-	json_data, err := respjson.ErrorToJson(inputErr)
+	json_data, err := response.ErrorToJson(inputErr)
 	if err != nil {
 		s.handlers.ErrHandler(inputErr)
 		s.handlers.ErrHandler(err)

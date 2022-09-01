@@ -3,10 +3,10 @@ package server
 //クライアントから赤外線の受信命令が来た時のハンドラ
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
-	"pirem/respjson"
 	"strings"
 )
 
@@ -34,14 +34,14 @@ func (s DaemonServer) receiveHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rawData, err := s.handlers.RecvIRDataHandler(dev_name)
+	irData, err := s.handlers.RecvIRDataHandler(dev_name)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(s.ErrorToJson(err))
 		return
 	}
 
-	resp, err := respjson.IRRawDataToJson(rawData)
+	resp, err := json.Marshal(irData)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(s.ErrorToJson(err))

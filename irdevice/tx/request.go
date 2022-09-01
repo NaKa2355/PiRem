@@ -1,6 +1,6 @@
 package tx
 
-import "github.com/NaKa2355/ir"
+import "pirem/irdata"
 
 type Request interface {
 	Match(ReqCases)
@@ -14,7 +14,7 @@ type ReqCases struct {
 
 type SendIRReq struct {
 	RespChan chan ResultResp
-	Param    ir.RawData
+	Param    irdata.Data
 }
 
 func (req SendIRReq) Match(cases ReqCases) {

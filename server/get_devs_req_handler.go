@@ -1,8 +1,8 @@
 package server
 
 import (
+	"encoding/json"
 	"net/http"
-	"pirem/respjson"
 )
 
 func (s DaemonServer) getDevices(w http.ResponseWriter, r *http.Request) {
@@ -20,7 +20,7 @@ func (s DaemonServer) getDevices(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := respjson.DevicesToJson(devs)
+	resp, err := json.Marshal(devs)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(s.ErrorToJson(err))

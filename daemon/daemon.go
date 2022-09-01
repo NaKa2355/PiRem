@@ -1,11 +1,10 @@
 package daemon
 
 import (
+	ir "pirem/irdata"
 	"pirem/irdevice"
+	"pirem/irdevice/tx"
 	"pirem/server"
-	"pirem/tx"
-
-	"github.com/NaKa2355/ir"
 )
 
 type Daemon struct {
@@ -21,7 +20,7 @@ func (d *Daemon) AddDevice(name string, dev irdevice.Device) {
 	d.Devices[name] = dev
 }
 
-func (d Daemon) sendIRHandler(devName string, rawData ir.RawData) error {
+func (d Daemon) sendIRHandler(devName string, rawData ir.Data) error {
 	dev, exist := d.Devices[devName]
 	if !exist {
 		return ErrDevNotFound
@@ -33,10 +32,10 @@ func (d Daemon) sendIRHandler(devName string, rawData ir.RawData) error {
 	return resp.Err
 }
 
-func (d Daemon) receiveHandler(devName string) (ir.RawData, error) {
+func (d Daemon) receiveHandler(devName string) (ir.Data, error) {
 	dev, exist := d.Devices[devName]
 	if !exist {
-		return nil, ErrDevNotFound
+		return ir.Data{}, ErrDevNotFound
 	}
 
 	respChan := make(chan tx.ResultIRRawDataResp)

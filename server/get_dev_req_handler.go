@@ -1,10 +1,10 @@
 package server
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
-	"pirem/respjson"
 	"strings"
 )
 
@@ -39,7 +39,7 @@ func (s DaemonServer) getDevice(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := respjson.DeviceToJson(dev)
+	resp, err := json.Marshal(dev)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(s.ErrorToJson(err))
