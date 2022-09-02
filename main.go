@@ -12,18 +12,7 @@ import (
 )
 
 func main() {
-	/*
-		jsonData := []byte(`{"type":"raw","ir_data":{"data": ["10us","20us","30us"]}}`)
-		data := irdata.Data{}
-		json.Unmarshal(jsonData, &data)
-		fmt.Println(data)
-		jsonData, _ = json.Marshal(data)
-		fmt.Println(string(jsonData))
 
-			var dataType ir.DataType = ir.Raw
-			jsonData, _ := json.Marshal(dataType)
-			fmt.Println(string(jsonData))
-	*/
 	daemon := daemon.Daemon{}
 	daemon.Init()
 
@@ -31,14 +20,12 @@ func main() {
 		mockdev := ErrMockDev{}
 		dev := irdevice.Device{}
 		dev.InitMock("/test", 10*time.Second, mockdev)
-
-		//jsonData, _ := json.Marshal(dev)
-		//fmt.Println(string(jsonData))
-		dev.GenerateEventQueue()
+		dev.StartDispatcher()
 		daemon.AddDevice(fmt.Sprintf("test %d", i), dev)
 	}
+
 	daemon.ErrHandler = func(err error) {
-		println(err.Error())
+		log.Println(err.Error())
 	}
 
 	daemon.Start(8080)
@@ -48,4 +35,5 @@ func main() {
 	log.Printf("SIGNAL %d received, then shutting down...\n", <-quit)
 	daemon.Stop()
 	log.Printf("server stopped")
+
 }

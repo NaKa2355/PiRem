@@ -37,7 +37,7 @@ func (dev *Device) InitMock(plugin_path string, timeout time.Duration, mock irde
 	dev.eventDispatcher = eventDispatcher
 }
 
-func (dev *Device) GenerateEventQueue() {
+func (dev *Device) StartDispatcher() {
 	reqChan := make(chan tx.Request)
 	dev.reqChan = reqChan
 

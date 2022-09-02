@@ -40,7 +40,11 @@ func (s *Server) New(handlers ServerHandlers, port uint16) {
 }
 
 func (s Server) Start() error {
-	go s.server.ListenAndServe()
+	go func() {
+		if err := s.server.ListenAndServe(); err != nil {
+			s.handlers.ErrHandler(err)
+		}
+	}()
 	return nil
 }
 

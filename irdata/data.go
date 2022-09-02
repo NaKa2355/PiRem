@@ -21,6 +21,7 @@ func (irdata *Data) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &jsonIrData); err != nil {
 		return err
 	}
+
 	switch jsonIrData.Type {
 	case Raw:
 		rawData := irdevctrl.RawData{}
@@ -28,22 +29,29 @@ func (irdata *Data) UnmarshalJSON(data []byte) error {
 			return err
 		}
 		irdata.IRData = rawData
+
 	default:
 		return errors.New("unsupported type")
 	}
+
 	return nil
 }
 
 func (irdata Data) MarshalJSON() ([]byte, error) {
 	var err error
+
 	irDataPrim := struct {
 		Type   DataType          `json:"type"`
 		IRData irdevctrl.RawData `json:"ir_data"`
 	}{}
+
 	irDataPrim.Type = irdata.Type
+
 	irDataPrim.IRData, err = irdata.IRData.ConvertToRawData()
+
 	if err != nil {
 		return []byte{}, err
 	}
+
 	return json.Marshal(irDataPrim)
 }
