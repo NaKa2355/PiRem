@@ -1,6 +1,8 @@
 package daemon
 
 import (
+	"fmt"
+	"pirem/defs"
 	ir "pirem/irdata"
 	"pirem/irdevice"
 	"pirem/irdevice/tx"
@@ -23,7 +25,7 @@ func (d *Daemon) AddDevice(name string, dev irdevice.Device) {
 func (d Daemon) sendIRHandler(devName string, rawData ir.Data) error {
 	dev, exist := d.Devices[devName]
 	if !exist {
-		return ErrDevNotFound
+		return fmt.Errorf("the device, \"%s\" is not found: %s", devName, defs.ErrInvaildInput)
 	}
 	respChan := make(chan tx.ResultResp)
 	req := tx.SendIRReq{RespChan: respChan, Param: rawData}
@@ -35,13 +37,16 @@ func (d Daemon) sendIRHandler(devName string, rawData ir.Data) error {
 func (d Daemon) receiveHandler(devName string) (ir.Data, error) {
 	dev, exist := d.Devices[devName]
 	if !exist {
-		return ir.Data{}, ErrDevNotFound
+		return ir.Data{}, fmt.Errorf("the device, \"%s\" is not found: %s", devName, defs.ErrInvaildInput)
 	}
 
 	respChan := make(chan tx.ResultIRDataResp)
 	req := tx.ReceiveIRReq{RespChan: respChan}
 	dev.SendReq(req)
-	resp := <-respChan
+	resp, ok := <-respChan
+	if !ok {
+		return resp.Value, fmt.Errorf("no reply from the device: %s", defs.ErrInternal)
+	}
 	return resp.Value, resp.Err
 }
 
@@ -52,13 +57,12 @@ func (d Daemon) getDevicesHandler() (map[string]irdevice.Device, error) {
 func (d Daemon) getDeviceHandler(devName string) (irdevice.Device, error) {
 	dev, exist := d.Devices[devName]
 	if !exist {
-		return dev, ErrDevNotFound
+		return dev, fmt.Errorf("the device, \"%s\" is not found: %s", devName, defs.ErrInvaildInput)
 	}
 	return dev, nil
 }
 
 func (d Daemon) Stop() error {
-
 	return nil
 }
 

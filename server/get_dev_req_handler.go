@@ -2,8 +2,10 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
+	"pirem/defs"
 	"strings"
 )
 
@@ -13,13 +15,15 @@ func (s Server) getDevice(w http.ResponseWriter, r *http.Request) {
 
 	if len(pathes) != 3 {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write(s.ErrorToJson(ErrInvaildURLPath))
+		err := fmt.Errorf("url path must be like this (/devices/device_name): %s", defs.ErrInvaildURLPath)
+		w.Write(s.ErrorToJson(err))
 		return
 	}
 
 	if r.Method != http.MethodGet {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write(s.ErrorToJson(ErrInvaildMethod))
+		err := fmt.Errorf("use GET method to get device information: %s", defs.ErrInvaildMethod)
+		w.Write(s.ErrorToJson(err))
 		return
 	}
 

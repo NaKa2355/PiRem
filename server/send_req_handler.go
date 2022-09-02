@@ -4,9 +4,11 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
+	"pirem/defs"
 	"pirem/irdata"
 	"strings"
 )
@@ -16,13 +18,15 @@ func (s Server) sendHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/json")
 	if len(pathes) != 3 {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write(s.ErrorToJson(ErrInvaildURLPath))
+		err := fmt.Errorf("url path must be like this (/send/device_name): %s", defs.ErrInvaildURLPath)
+		w.Write(s.ErrorToJson(err))
 		return
 	}
 
 	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write(s.ErrorToJson(ErrInvaildMethod))
+		err := fmt.Errorf("use POST method to send IR: %s", defs.ErrInvaildMethod)
+		w.Write(s.ErrorToJson(err))
 		return
 	}
 

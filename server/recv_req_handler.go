@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"pirem/defs"
 	"strings"
 )
 
@@ -17,13 +18,15 @@ func (s Server) receiveHandler(w http.ResponseWriter, r *http.Request) {
 
 	if len(pathes) != 3 {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write(s.ErrorToJson(ErrInvaildURLPath))
+		err := fmt.Errorf("url path must be like this (/receive/device_name): %s", defs.ErrInvaildURLPath)
+		w.Write(s.ErrorToJson(err))
 		return
 	}
 
 	if r.Method != http.MethodGet {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write(s.ErrorToJson(ErrInvaildMethod))
+		err := fmt.Errorf("use GET method to receive IR: %s", defs.ErrInvaildMethod)
+		w.Write(s.ErrorToJson(err))
 		return
 	}
 

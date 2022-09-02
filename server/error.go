@@ -1,8 +1,8 @@
 package server
 
 import (
+	"encoding/json"
 	"errors"
-	"pirem/json/response"
 )
 
 var (
@@ -11,7 +11,7 @@ var (
 )
 
 func (s Server) ErrorToJson(inputErr error) []byte {
-	json_data, err := response.ErrorToJson(inputErr)
+	json_data, err := json.Marshal(inputErr.Error())
 	if err != nil {
 		s.handlers.ErrHandler(inputErr)
 		s.handlers.ErrHandler(err)

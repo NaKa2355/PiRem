@@ -48,7 +48,6 @@ func (eventQueue EventDispatcher) handleSendIRReq(req tx.SendIRReq) {
 
 func (eventQueue *EventDispatcher) handleRemoveDevReq(req tx.RemoveDevReq) {
 	err := eventQueue.dev.Drop()
-	eventQueue.dev = nil
 	resp := tx.ResultResp{Err: err}
 	req.RespChan <- resp
 	close(req.RespChan)
@@ -78,10 +77,10 @@ func (eventQueue EventDispatcher) GetFeatures() irdevctrl.Features {
 
 func (eventQueue EventDispatcher) Start(reqChan <-chan tx.Request) {
 	for {
-		if eventQueue.dev == nil {
+		req, ok := <-reqChan
+		if !ok {
 			break
 		}
-		req := <-reqChan
 		eventQueue.handleReq(req)
 	}
 }

@@ -2,14 +2,17 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"pirem/defs"
 )
 
 func (s Server) getDevices(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/json")
 	if r.Method != http.MethodGet {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write(s.ErrorToJson(ErrInvaildMethod))
+		err := fmt.Errorf("use GET method to get devices information: %s", defs.ErrInvaildMethod)
+		w.Write(s.ErrorToJson(err))
 		return
 	}
 

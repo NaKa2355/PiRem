@@ -3,6 +3,8 @@ package irdata
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
+	"pirem/defs"
 )
 
 type DataType int
@@ -20,7 +22,7 @@ func (datatype *DataType) UnmarshalJSON(data []byte) error {
 	case "raw":
 		*datatype = Raw
 	default:
-		return errors.New("unsupported type")
+		return fmt.Errorf("type, \"%s\" is not supported: %s", strDataType, defs.ErrInvaildInput)
 	}
 	return nil
 }
