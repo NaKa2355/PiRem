@@ -2,12 +2,6 @@ package server
 
 import (
 	"encoding/json"
-	"errors"
-)
-
-var (
-	ErrInvaildURLPath = errors.New("invaild URL path")
-	ErrInvaildMethod  = errors.New("invaild http method")
 )
 
 func (s Server) ErrorToJson(inputErr error) []byte {
@@ -17,6 +11,8 @@ func (s Server) ErrorToJson(inputErr error) []byte {
 		s.handlers.ErrHandler(err)
 		return []byte("")
 	}
+
 	s.handlers.ErrHandler(inputErr)
+
 	return json_data
 }

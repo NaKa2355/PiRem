@@ -19,11 +19,11 @@ import (
 type Devices map[string]Device
 
 type Device struct {
-	pluginPath string
-	buffSize   uint16
-	timeout    time.Duration
-	featurs    irdevctrl.Features
-	reqChan    chan<- tx.Request
+	pluginPath      string
+	buffSize        uint16
+	timeout         time.Duration
+	featurs         irdevctrl.Features
+	reqChan         chan<- tx.Request
 	eventDispatcher EventDispatcher
 }
 
@@ -40,6 +40,7 @@ func (dev *Device) InitMock(plugin_path string, timeout time.Duration, mock irde
 func (dev *Device) GenerateEventQueue() {
 	reqChan := make(chan tx.Request)
 	dev.reqChan = reqChan
+
 	go dev.eventDispatcher.Start(reqChan)
 }
 
@@ -59,20 +60,23 @@ func (dev Device) SendReq(req tx.Request) error {
 	select {
 	case dev.reqChan <- req:
 		return nil
-	case <-time.After(dev.timeout):
-		return fmt.Errorf("request time out after %dms %s", dev.timeout.Milliseconds(), defs.ErrRequestTimeout)
-	}
 
+	case <-time.After(dev.timeout):
+		return fmt.Errorf("please retry: %s", defs.ErrRequestTimeout)
+	}
+}
+
+func (dev Device) Drop() {
+	close(dev.reqChan)
 }
 
 func (dev *Device) UnmarshalJSON(data []byte) error {
 	devicePrim := struct {
-		PluginPath  string             `json:"plugin_path"`
-		BuffSize    uint16             `json:"buffsize"`
-		QueueLength int                `json:"queue_length"`
-		Features    irdevctrl.Features `json:"features"`
-		Timeout     int                `json:"timeout"`
-		DeviceConf  json.RawMessage    `json:"device_config"`
+		PluginPath string             `json:"plugin_path"`
+		BuffSize   uint16             `json:"buffsize"`
+		Features   irdevctrl.Features `json:"features"`
+		Timeout    int                `json:"timeout"`
+		DeviceConf json.RawMessage    `json:"device_config"`
 	}{}
 
 	if err := json.Unmarshal(data, &devicePrim); err != nil {

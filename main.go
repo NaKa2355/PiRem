@@ -2,8 +2,12 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"os/signal"
 	"pirem/daemon"
 	"pirem/irdevice"
+	"syscall"
 	"time"
 )
 
@@ -36,5 +40,12 @@ func main() {
 	daemon.ErrHandler = func(err error) {
 		println(err.Error())
 	}
+
 	daemon.Start(8080)
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGTERM, os.Interrupt)
+	log.Printf("SIGNAL %d received, then shutting down...\n", <-quit)
+	daemon.Stop()
+	log.Printf("server stopped")
 }

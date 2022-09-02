@@ -13,7 +13,7 @@ type ErrMockDev struct{}
 func (dev ErrMockDev) ReceiveIRData() (irdevctrl.RawData, error) {
 	fmt.Printf("receiving...")
 	time.Sleep(5 * time.Second)
-	return []irdevctrl.Pulse{irdevctrl.Pulse{irdevctrl.Micro, 10}, irdevctrl.Pulse{irdevctrl.Micro, 20}, irdevctrl.Pulse{irdevctrl.Micro, 30}}, nil
+	return []irdevctrl.Pulse{irdevctrl.Pulse{irdevctrl.Micro, 10}, irdevctrl.Pulse{irdevctrl.Milli, 20}, irdevctrl.Pulse{irdevctrl.Micro, 30}}, nil
 }
 
 func (dev ErrMockDev) SendIRData(rawData irdevctrl.RawData) error {
