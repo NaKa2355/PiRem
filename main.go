@@ -12,7 +12,6 @@ import (
 )
 
 func main() {
-
 	daemon := daemon.Daemon{}
 	daemon.Init()
 

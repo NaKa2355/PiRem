@@ -1,7 +1,5 @@
 package message
 
-import "time"
-
 type RoundTrip struct {
 	value      interface{}
 	returnChan chan Message
@@ -28,11 +26,19 @@ func (m *RoundTrip) SendBack(resp Message) {
 	m.returnChan = nil
 }
 
-func (m RoundTrip) Receive(timeout time.Duration) (Message, error) {
-	select {
-	case resp := <-m.returnChan:
-		return resp, ErrResponseTimeout
-	case <-time.After(timeout):
-		return &RoundTrip{}, nil
+func (m RoundTrip) Receive() (Message, error) {
+	resp, ok := <-m.returnChan
+	if !ok {
+		return resp, ErrNoReply
 	}
+	return resp, nil
+}
+
+func (m *RoundTrip) Close() {
+	if m.returnChan == nil {
+		return
+	}
+
+	close(m.returnChan)
+	m.returnChan = nil
 }

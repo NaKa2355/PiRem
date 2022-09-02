@@ -5,7 +5,6 @@ import (
 	"pirem/defs"
 	"pirem/irdata"
 	"pirem/irdevice"
-	"pirem/irdevice/tx"
 	"pirem/server"
 	"time"
 )
@@ -24,26 +23,13 @@ func (d *Daemon) AddDevice(name string, dev irdevice.Device) {
 	d.Devices[name] = dev
 }
 
-func (d Daemon) sendIRHandler(devName string, rawData irdata.Data) error {
+func (d Daemon) sendIRHandler(devName string, irData irdata.Data) error {
 	dev, exist := d.Devices[devName]
 	if !exist {
 		return fmt.Errorf("the device, \"%s\" not found: %s", devName, defs.ErrInvaildInput)
 	}
 
-	respChan := make(chan tx.ResultResp)
-	req := tx.SendIRReq{RespChan: respChan, Param: rawData}
-
-	err := dev.SendReq(req)
-	if err != nil {
-		return err
-	}
-
-	resp, ok := <-respChan
-	if !ok {
-		return fmt.Errorf("[device:%s] no reply from the device: %s", devName, defs.ErrInternal)
-	}
-
-	return resp.Err
+	return dev.SendIR(irData)
 }
 
 func (d Daemon) receiveHandler(devName string) (irdata.Data, error) {
@@ -52,19 +38,7 @@ func (d Daemon) receiveHandler(devName string) (irdata.Data, error) {
 		return irdata.Data{}, fmt.Errorf("the device, \"%s\" not found: %s", devName, defs.ErrInvaildInput)
 	}
 
-	respChan := make(chan tx.ResultIRDataResp)
-	req := tx.ReceiveIRReq{RespChan: respChan}
-
-	err := dev.SendReq(req)
-	if err != nil {
-		return irdata.Data{}, err
-	}
-
-	resp, ok := <-respChan
-	if !ok {
-		return resp.Value, fmt.Errorf("[device:%s] no reply from the device: %s", devName, defs.ErrInternal)
-	}
-	return resp.Value, resp.Err
+	return dev.ReceiveIR()
 }
 
 func (d Daemon) getDevicesHandler() (map[string]irdevice.Device, error) {

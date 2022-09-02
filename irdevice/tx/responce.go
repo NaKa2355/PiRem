@@ -4,13 +4,27 @@ import (
 	"pirem/irdata"
 )
 
-type ResponceType uint8
-
-type ResultResp struct {
-	Err error
+type SendIRResp struct {
+	err error
 }
 
-type ResultIRDataResp struct {
-	Value irdata.Data
-	Err   error
+func NewSendIRResp(err error) SendIRResp {
+	return SendIRResp{err: err}
+}
+
+func (resp SendIRResp) GetValue() error {
+	return resp.err
+}
+
+type RecvIRResp struct {
+	value irdata.Data
+	err   error
+}
+
+func NewRecvIRResp(value irdata.Data, err error) RecvIRResp {
+	return RecvIRResp{value: value, err: err}
+}
+
+func (resp RecvIRResp) GetValue() (irdata.Data, error) {
+	return resp.value, resp.err
 }

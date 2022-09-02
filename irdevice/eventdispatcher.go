@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"pirem/irdata"
 	"pirem/irdevice/tx"
+	"pirem/message"
 	"time"
 
 	"github.com/NaKa2355/irdevctrl"
@@ -21,57 +22,40 @@ func (eventQueue *EventDispatcher) InitMock(dev irdevctrl.Controller) {
 	eventQueue.dev = dev
 }
 
-func (eventQueue EventDispatcher) handleReceiveIRReq(req tx.ReceiveIRReq) {
-	rawData, err := eventQueue.dev.ReceiveIRData()
+func (eventDispatcher EventDispatcher) handleReceiveIRReq(m message.Message) {
+	rawData, err := eventDispatcher.dev.ReceiveIRData()
 
 	irData := irdata.Data{Type: irdata.Raw, IRData: rawData}
 
-	resp := tx.ResultIRDataResp{Value: irData, Err: err}
-	req.RespChan <- resp
+	resp := tx.NewRecvIRResp(irData, err)
 
-	close(req.RespChan)
+	m.SendBack(message.NewOneWay(resp))
 }
 
-func (eventQueue EventDispatcher) handleSendIRReq(req tx.SendIRReq) {
+func (eventDispatcher EventDispatcher) handleSendIRReq(m message.Message) {
 	var err error
 
-	rawData, err := req.Param.IRData.ConvertToRawData()
+	rawData, err := m.GetValue().(tx.SendIRReq).GetValue().IRData.ConvertToRawData()
+
 	if err == nil {
-		err = eventQueue.dev.SendIRData(rawData)
+		err = eventDispatcher.dev.SendIRData(rawData)
 	}
 
 	time.Sleep(130 * time.Millisecond)
 
-	resp := tx.ResultResp{Err: err}
-	req.RespChan <- resp
-
-	close(req.RespChan)
+	resp := tx.NewSendIRResp(err)
+	m.SendBack(message.NewOneWay(resp))
 }
 
-func (eventQueue *EventDispatcher) handleRemoveDevReq(req tx.RemoveDevReq) {
-	err := eventQueue.dev.Drop()
-
-	resp := tx.ResultResp{Err: err}
-
-	req.RespChan <- resp
-
-	close(req.RespChan)
-}
-
-func (eventQueue EventDispatcher) handleReq(req tx.Request) {
-	req.Match(tx.ReqCases{
-		ReceiveIR: func(value tx.ReceiveIRReq) {
-			eventQueue.handleReceiveIRReq(value)
-		},
-
-		SendIR: func(value tx.SendIRReq) {
-			eventQueue.handleSendIRReq(value)
-		},
-
-		RemoveDev: func(value tx.RemoveDevReq) {
-			eventQueue.handleRemoveDevReq(value)
-		},
-	})
+func (eventDispatcher EventDispatcher) handleReq(m message.Message) {
+	switch m.GetValue().(type) {
+	case tx.SendIRReq:
+		eventDispatcher.handleSendIRReq(m)
+	case tx.RecvIRReq:
+		eventDispatcher.handleReceiveIRReq(m)
+	default:
+		return
+	}
 }
 
 func (eventQueue EventDispatcher) GetBufferSize() uint16 {
@@ -82,13 +66,12 @@ func (eventQueue EventDispatcher) GetFeatures() irdevctrl.Features {
 	return eventQueue.dev.GetSupportingFeatures()
 }
 
-func (eventQueue EventDispatcher) Start(reqChan <-chan tx.Request) {
+func (eventQueue EventDispatcher) Start(reqChan <-chan message.Message) {
 	for {
 		req, ok := <-reqChan
 		if !ok {
 			break
 		}
-
 		eventQueue.handleReq(req)
 	}
 }

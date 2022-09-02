@@ -2,13 +2,13 @@ package message
 
 import (
 	"errors"
-	"time"
 )
 
 type Message interface {
 	GetValue() interface{}
 	SendBack(Message)
-	Receive(timeout time.Duration) (Message, error)
+	Receive() (Message, error)
+	Close()
 }
 
-var ErrResponseTimeout = errors.New("response timeout")
+var ErrNoReply = errors.New("no reply from the destination")

@@ -8,9 +8,9 @@ SendReq関数でデバイスに紐づいたイベントループへリクエス�
 
 import (
 	"encoding/json"
-	"fmt"
-	"pirem/defs"
+	"pirem/irdata"
 	"pirem/irdevice/tx"
+	"pirem/message"
 	"time"
 
 	"github.com/NaKa2355/irdevctrl"
@@ -23,7 +23,7 @@ type Device struct {
 	buffSize        uint16
 	timeout         time.Duration
 	featurs         irdevctrl.Features
-	reqChan         chan<- tx.Request
+	reqChan         chan<- message.Message
 	eventDispatcher EventDispatcher
 }
 
@@ -38,7 +38,7 @@ func (dev *Device) InitMock(plugin_path string, timeout time.Duration, mock irde
 }
 
 func (dev *Device) StartDispatcher() {
-	reqChan := make(chan tx.Request)
+	reqChan := make(chan message.Message)
 	dev.reqChan = reqChan
 
 	go dev.eventDispatcher.Start(reqChan)
@@ -56,14 +56,28 @@ func (dev Device) GetFeatures() irdevctrl.Features {
 	return dev.featurs
 }
 
-func (dev Device) SendReq(req tx.Request) error {
-	select {
-	case dev.reqChan <- req:
-		return nil
+func (dev Device) SendIR(irdata irdata.Data) error {
+	m := message.NewRoundTrip(tx.NewSendIRReq(irdata))
+	dev.reqChan <- m
 
-	case <-time.After(dev.timeout):
-		return fmt.Errorf("please retry: %s", defs.ErrRequestTimeout)
+	resp, err := m.Receive()
+	if err != nil {
+		return err
 	}
+
+	return resp.GetValue().(tx.SendIRResp).GetValue()
+}
+
+func (dev Device) ReceiveIR() (irdata.Data, error) {
+	m := message.NewRoundTrip(tx.RecvIRReq{})
+	dev.reqChan <- m
+
+	resp, err := m.Receive()
+	if err != nil {
+		return irdata.Data{}, err
+	}
+
+	return resp.GetValue().(tx.RecvIRResp).GetValue()
 }
 
 func (dev Device) Drop() {

@@ -1,7 +1,5 @@
 package message
 
-import "time"
-
 type OneWay struct {
 	value interface{}
 }
@@ -19,6 +17,8 @@ func (m OneWay) GetValue() interface{} {
 func (m OneWay) SendBack(Message) {
 }
 
-func (m OneWay) Receive(timeout time.Duration) (Message, error) {
+func (m OneWay) Receive() (Message, error) {
 	return OneWay{}, nil
 }
+
+func (m OneWay) Close() {}
