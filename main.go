@@ -1,36 +1,40 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"pirem/irdata"
+	"pirem/daemon"
+	"pirem/irdevice"
+	"time"
 )
 
 func main() {
-	jsonData := []byte(`{"type":"raw","ir_data":{"data": ["10us","20us","30us"]}}`)
-	data := irdata.Data{}
-	json.Unmarshal(jsonData, &data)
-	fmt.Println(data)
-	jsonData, _ = json.Marshal(data)
-	fmt.Println(string(jsonData))
 	/*
-		var dataType ir.DataType = ir.Raw
-		jsonData, _ := json.Marshal(dataType)
+		jsonData := []byte(`{"type":"raw","ir_data":{"data": ["10us","20us","30us"]}}`)
+		data := irdata.Data{}
+		json.Unmarshal(jsonData, &data)
+		fmt.Println(data)
+		jsonData, _ = json.Marshal(data)
 		fmt.Println(string(jsonData))
+
+			var dataType ir.DataType = ir.Raw
+			jsonData, _ := json.Marshal(dataType)
+			fmt.Println(string(jsonData))
 	*/
-	/*
+	daemon := daemon.Daemon{}
+	daemon.Init()
+
+	for i := 0; i < 2; i++ {
 		mockdev := ErrMockDev{}
-		devctrl := DevController{}
-		devctrl.Init(mockdev)
-		reqChan := make(chan tx.Request, 10)
-		go devctrl.Start(reqChan)
-
 		dev := irdevice.Device{}
-		dev.Init("test.so", 600, reqChan)
+		dev.InitMock("/test", 10*time.Second, mockdev)
 
-		daemon := daemon.Daemon{}
-		daemon.Init()
-		daemon.AddDevice("airer", dev)
-		daemon.Start(8080)
-	*/
+		//jsonData, _ := json.Marshal(dev)
+		//fmt.Println(string(jsonData))
+		dev.GenerateEventQueue()
+		daemon.AddDevice(fmt.Sprintf("test %d", i), dev)
+	}
+	daemon.ErrHandler = func(err error) {
+		println(err.Error())
+	}
+	daemon.Start(8080)
 }

@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-func (s DaemonServer) sendHandler(w http.ResponseWriter, r *http.Request) {
+func (s Server) sendHandler(w http.ResponseWriter, r *http.Request) {
 	pathes := strings.Split(r.URL.Path, "/")
 	w.Header().Set("Content-Type", "text/json")
 	if len(pathes) != 3 {

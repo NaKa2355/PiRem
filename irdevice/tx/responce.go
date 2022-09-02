@@ -10,7 +10,7 @@ type ResultResp struct {
 	Err error
 }
 
-type ResultIRRawDataResp struct {
+type ResultIRDataResp struct {
 	Value irdata.Data
 	Err   error
 }

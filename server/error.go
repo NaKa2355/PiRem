@@ -10,12 +10,13 @@ var (
 	ErrInvaildMethod  = errors.New("invaild http method")
 )
 
-func (s DaemonServer) ErrorToJson(inputErr error) []byte {
+func (s Server) ErrorToJson(inputErr error) []byte {
 	json_data, err := response.ErrorToJson(inputErr)
 	if err != nil {
 		s.handlers.ErrHandler(inputErr)
 		s.handlers.ErrHandler(err)
 		return []byte("")
 	}
+	s.handlers.ErrHandler(inputErr)
 	return json_data
 }

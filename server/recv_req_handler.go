@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func (s DaemonServer) receiveHandler(w http.ResponseWriter, r *http.Request) {
+func (s Server) receiveHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(r.URL.Path)
 	pathes := strings.Split(r.URL.Path, "/")
 	w.Header().Set("Content-Type", "text/json")

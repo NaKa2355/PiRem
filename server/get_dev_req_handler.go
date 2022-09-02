@@ -2,14 +2,12 @@ package server
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
 )
 
-func (s DaemonServer) getDevice(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(r.URL.Path)
+func (s Server) getDevice(w http.ResponseWriter, r *http.Request) {
 	pathes := strings.Split(r.URL.Path, "/")
 	w.Header().Set("Content-Type", "text/json")
 

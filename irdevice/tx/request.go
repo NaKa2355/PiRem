@@ -25,7 +25,7 @@ func (req SendIRReq) Match(cases ReqCases) {
 }
 
 type ReceiveIRReq struct {
-	RespChan chan ResultIRRawDataResp
+	RespChan chan ResultIRDataResp
 }
 
 func (req ReceiveIRReq) Match(cases ReqCases) {

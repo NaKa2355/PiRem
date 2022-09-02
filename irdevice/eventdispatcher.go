@@ -1,5 +1,10 @@
 package irdevice
 
+/*
+デバイス構造体のreqChanからのリクエストをキューに入れて順番にirdevctrl.Controllerのインターフェースの関数を呼び出す
+goルーチンでループを回して処理を受け付ける
+*/
+
 import (
 	"encoding/json"
 	"pirem/irdata"
@@ -9,27 +14,27 @@ import (
 	"github.com/NaKa2355/irdevctrl"
 )
 
-type EventQueue struct {
+type EventDispatcher struct {
 	dev irdevctrl.Controller
 }
 
-func (eventQueue *EventQueue) Init(pluginPath string, jsonDevConf json.RawMessage) error {
+func (eventQueue *EventDispatcher) Init(pluginPath string, jsonDevConf json.RawMessage) error {
 	return nil
 }
 
-func (eventQueue *EventQueue) InitMock(dev irdevctrl.Controller) {
+func (eventQueue *EventDispatcher) InitMock(dev irdevctrl.Controller) {
 	eventQueue.dev = dev
 }
 
-func (eventQueue EventQueue) handleReceiveIRReq(req tx.ReceiveIRReq) {
+func (eventQueue EventDispatcher) handleReceiveIRReq(req tx.ReceiveIRReq) {
 	rawData, err := eventQueue.dev.ReceiveIRData()
 	irData := irdata.Data{Type: irdata.Raw, IRData: rawData}
-	resp := tx.ResultIRRawDataResp{Value: irData, Err: err}
+	resp := tx.ResultIRDataResp{Value: irData, Err: err}
 	req.RespChan <- resp
 	close(req.RespChan)
 }
 
-func (eventQueue EventQueue) handleSendIRReq(req tx.SendIRReq) {
+func (eventQueue EventDispatcher) handleSendIRReq(req tx.SendIRReq) {
 	var err error
 	rawData, err := req.Param.IRData.ConvertToRawData()
 	if err == nil {
@@ -41,7 +46,7 @@ func (eventQueue EventQueue) handleSendIRReq(req tx.SendIRReq) {
 	close(req.RespChan)
 }
 
-func (eventQueue *EventQueue) handleRemoveDevReq(req tx.RemoveDevReq) {
+func (eventQueue *EventDispatcher) handleRemoveDevReq(req tx.RemoveDevReq) {
 	err := eventQueue.dev.Drop()
 	eventQueue.dev = nil
 	resp := tx.ResultResp{Err: err}
@@ -49,7 +54,7 @@ func (eventQueue *EventQueue) handleRemoveDevReq(req tx.RemoveDevReq) {
 	close(req.RespChan)
 }
 
-func (eventQueue EventQueue) handleReq(req tx.Request) {
+func (eventQueue EventDispatcher) handleReq(req tx.Request) {
 	req.Match(tx.ReqCases{
 		ReceiveIR: func(value tx.ReceiveIRReq) {
 			eventQueue.handleReceiveIRReq(value)
@@ -63,15 +68,15 @@ func (eventQueue EventQueue) handleReq(req tx.Request) {
 	})
 }
 
-func (eventQueue EventQueue) GetBufferSize() uint16 {
+func (eventQueue EventDispatcher) GetBufferSize() uint16 {
 	return eventQueue.dev.GetBufferSize()
 }
 
-func (eventQueue EventQueue) GetFeatures() irdevctrl.Features {
+func (eventQueue EventDispatcher) GetFeatures() irdevctrl.Features {
 	return eventQueue.dev.GetSupportingFeatures()
 }
 
-func (eventQueue EventQueue) Start(reqChan <-chan tx.Request) {
+func (eventQueue EventDispatcher) Start(reqChan <-chan tx.Request) {
 	for {
 		if eventQueue.dev == nil {
 			break

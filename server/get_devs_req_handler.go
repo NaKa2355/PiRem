@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func (s DaemonServer) getDevices(w http.ResponseWriter, r *http.Request) {
+func (s Server) getDevices(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/json")
 	if r.Method != http.MethodGet {
 		w.WriteHeader(http.StatusBadRequest)

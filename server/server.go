@@ -17,17 +17,17 @@ type ServerHandlers struct {
 	ErrHandler        func(error)
 }
 
-type DaemonServer struct {
+type Server struct {
 	handlers ServerHandlers
 	port     uint16
 }
 
-func (s *DaemonServer) New(handlers ServerHandlers, port uint16) {
+func (s *Server) New(handlers ServerHandlers, port uint16) {
 	s.handlers = handlers
 	s.port = port
 }
 
-func (s DaemonServer) Start() {
+func (s Server) Start() {
 	http.HandleFunc("/send/", s.sendHandler)
 	http.HandleFunc("/receive/", s.receiveHandler)
 	http.HandleFunc("/devices", s.getDevices)

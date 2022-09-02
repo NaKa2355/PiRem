@@ -38,7 +38,7 @@ func (d Daemon) receiveHandler(devName string) (ir.Data, error) {
 		return ir.Data{}, ErrDevNotFound
 	}
 
-	respChan := make(chan tx.ResultIRRawDataResp)
+	respChan := make(chan tx.ResultIRDataResp)
 	req := tx.ReceiveIRReq{RespChan: respChan}
 	dev.SendReq(req)
 	resp := <-respChan
@@ -57,6 +57,11 @@ func (d Daemon) getDeviceHandler(devName string) (irdevice.Device, error) {
 	return dev, nil
 }
 
+func (d Daemon) Stop() error {
+
+	return nil
+}
+
 func (d Daemon) Start(server_port uint16) {
 	handler := server.ServerHandlers{
 		SendIRHandler:     d.sendIRHandler,
@@ -67,7 +72,7 @@ func (d Daemon) Start(server_port uint16) {
 			d.ErrHandler(err)
 		},
 	}
-	daemonServer := server.DaemonServer{}
+	daemonServer := server.Server{}
 	daemonServer.New(handler, server_port)
 	daemonServer.Start()
 }

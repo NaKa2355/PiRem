@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/NaKa2355/irdevctrl"
 )
@@ -10,17 +11,17 @@ import (
 type ErrMockDev struct{}
 
 func (dev ErrMockDev) ReceiveIRData() (irdevctrl.RawData, error) {
+	fmt.Printf("receiving...")
+	time.Sleep(5 * time.Second)
 	return []irdevctrl.Pulse{irdevctrl.Pulse{irdevctrl.Micro, 10}, irdevctrl.Pulse{irdevctrl.Micro, 20}, irdevctrl.Pulse{irdevctrl.Micro, 30}}, nil
 }
 
 func (dev ErrMockDev) SendIRData(rawData irdevctrl.RawData) error {
-	fmt.Println(rawData)
-	return errors.New("test")
+	fmt.Printf("sending... %v\n", rawData)
+	return nil
 }
 
 func (dev ErrMockDev) GetBufferSize() uint16 {
-	var test irdevctrl.Controller
-	test.GetSupportingFeatures()
 	return 600
 }
 
