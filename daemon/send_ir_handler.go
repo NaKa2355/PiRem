@@ -3,7 +3,7 @@ package daemon
 import (
 	"encoding/json"
 	"fmt"
-	"io"
+	"io/ioutil"
 	"net/http"
 	"pirem/defs"
 	"pirem/irdata"
@@ -12,7 +12,7 @@ import (
 
 func (d Daemon) sendIRReqWrapper(handler func(irdata.Data, string) error, devParamKey string) server.HandlerFunc {
 	f := func(w http.ResponseWriter, r *http.Request, pathParam map[string]string) {
-		req, err := io.ReadAll(r.Body)
+		req, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			d.errHandler(err)
 			d.sendError(err, w, http.StatusInternalServerError)
