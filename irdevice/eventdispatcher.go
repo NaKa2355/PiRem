@@ -14,12 +14,12 @@ type EventDispatcher struct {
 	dev irdevctrl.Controller
 }
 
-func (eventQueue *EventDispatcher) Init(pluginPath string, jsonDevConf json.RawMessage) error {
+func (eventDispatcher *EventDispatcher) Init(pluginPath string, jsonDevConf json.RawMessage) error {
 	return nil
 }
 
-func (eventQueue *EventDispatcher) InitMock(dev irdevctrl.Controller) {
-	eventQueue.dev = dev
+func (eventDispatcher *EventDispatcher) InitMock(dev irdevctrl.Controller) {
+	eventDispatcher.dev = dev
 }
 
 func (eventDispatcher EventDispatcher) handleReceiveIRReq(m message.Message) {
@@ -58,20 +58,20 @@ func (eventDispatcher EventDispatcher) handleReq(m message.Message) {
 	}
 }
 
-func (eventQueue EventDispatcher) GetBufferSize() uint16 {
-	return eventQueue.dev.GetBufferSize()
+func (eventDispatcher EventDispatcher) GetBufferSize() uint16 {
+	return eventDispatcher.dev.GetBufferSize()
 }
 
-func (eventQueue EventDispatcher) GetFeatures() irdevctrl.Features {
-	return eventQueue.dev.GetSupportingFeatures()
+func (eventDispatcher EventDispatcher) GetFeatures() irdevctrl.Features {
+	return eventDispatcher.dev.GetSupportingFeatures()
 }
 
-func (eventQueue EventDispatcher) Start(reqChan <-chan message.Message) {
+func (eventDispatcher EventDispatcher) Start(reqChan <-chan message.Message) {
 	for {
 		req, ok := <-reqChan
 		if !ok {
 			break
 		}
-		eventQueue.handleReq(req)
+		eventDispatcher.handleReq(req)
 	}
 }

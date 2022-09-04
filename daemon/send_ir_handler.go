@@ -3,7 +3,7 @@ package daemon
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io/ioutil" //for go 1.11
 	"net/http"
 	"pirem/defs"
 	"pirem/irdata"
