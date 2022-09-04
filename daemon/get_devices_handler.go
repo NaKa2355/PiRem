@@ -12,14 +12,14 @@ func (d Daemon) getDevReqWrapper(handler func(string) (irdevice.Device, error), 
 		device, err := handler(pathParam[devParamKey])
 		if err != nil {
 			d.errHandler(err)
-			sendError(err, w, http.StatusInternalServerError)
+			d.sendError(err, w, http.StatusInternalServerError)
 			return
 		}
 
 		resp, err := json.Marshal(device)
 		if err != nil {
 			d.errHandler(err)
-			sendError(err, w, http.StatusInternalServerError)
+			d.sendError(err, w, http.StatusInternalServerError)
 			return
 		}
 
@@ -35,14 +35,14 @@ func (d Daemon) getDevsReqWrapper(handler func() (irdevice.Devices, error)) serv
 		devices, err := handler()
 		if err != nil {
 			d.errHandler(err)
-			sendError(err, w, http.StatusInternalServerError)
+			d.sendError(err, w, http.StatusInternalServerError)
 			return
 		}
 
 		resp, err := json.Marshal(devices)
 		if err != nil {
 			d.errHandler(err)
-			sendError(err, w, http.StatusInternalServerError)
+			d.sendError(err, w, http.StatusInternalServerError)
 			return
 		}
 

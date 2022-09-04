@@ -1,6 +1,7 @@
 package daemon
 
 import (
+	"encoding/json"
 	"net/http"
 	"pirem/irdevice"
 	"pirem/server"
@@ -17,9 +18,19 @@ func (d *Daemon) AddDevice(name string, dev irdevice.Device) {
 	d.devices[name] = dev
 }
 
-func sendError(err error, w http.ResponseWriter, statusCode int) {
+func (d Daemon) sendError(err error, w http.ResponseWriter, statusCode int) {
+	errJson := struct {
+		Err string `json:"error"`
+	}{}
+	errJson.Err = err.Error()
+
+	resp, err := json.Marshal(errJson)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	w.WriteHeader(statusCode)
-	w.Write([]byte(err.Error()))
+	w.Write(resp)
 }
 
 func (d Daemon) Stop() error {

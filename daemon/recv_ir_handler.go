@@ -14,13 +14,13 @@ func (d Daemon) recvIRReqWrapper(handler func(string) (irdata.Data, error), devP
 		irData, err := handler(pathParam[devParamKey])
 		if err != nil {
 			d.errHandler(err)
-			sendError(err, w, http.StatusInternalServerError)
+			d.sendError(err, w, http.StatusInternalServerError)
 			return
 		}
 		resp, err := json.Marshal(irData)
 		if err != nil {
 			d.errHandler(err)
-			sendError(err, w, http.StatusInternalServerError)
+			d.sendError(err, w, http.StatusInternalServerError)
 			return
 		}
 		w.Header().Add("Content-Type", "application/json")
