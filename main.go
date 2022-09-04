@@ -6,22 +6,22 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"pirem/newserver"
+	"pirem/server"
 	"syscall"
 	"time"
 )
 
 func main() {
 
-	s := newserver.NewServer(8080, func(err error) {
+	s := server.NewServer(8080, func(err error) {
 		fmt.Println(err)
 	})
-	s.AddHandler("GET", "/:userId", func(w http.ResponseWriter, r *http.Request, pathParam map[string]string) {
+	s.AddHandler("GET", "/hello/:userId", func(w http.ResponseWriter, r *http.Request, pathParam map[string]string) {
 		fmt.Printf("path param: %+v\n", pathParam)
 		//fmt.Printf("----body----\n%s----", string(body))
 	})
-	s.AddHandler("POST", "/:userId/status/:tweetId", func(w http.ResponseWriter, r *http.Request, pathParam map[string]string) {
-		fmt.Printf("path param: %+v\n", pathParam)
+	s.AddHandler("GET", "/hello", func(w http.ResponseWriter, r *http.Request, pathParam map[string]string) {
+		fmt.Printf("hello\n")
 		//fmt.Printf("----body----\n%s----", string(body))
 	})
 	s.Start()

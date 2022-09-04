@@ -1,54 +1,88 @@
 package server
 
-//デーモンのサーバー
-
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
-	"pirem/irdata"
-	"pirem/irdevice"
+	"strings"
 	"time"
 )
 
-type ServerHandlers struct {
-	SendIRHandler     func(string, irdata.Data) error
-	RecvIRDataHandler func(string) (irdata.Data, error)
-	GetDevicesHandler func() (map[string]irdevice.Device, error)
-	GetDeviceHandler  func(string) (irdevice.Device, error)
-	ErrHandler        func(error) //サーバーでエラーを表示できなかった場合に呼び出される
-}
+var (
+	ErrInvaildURLPath = errors.New("invaild URL path")
+	ErrInvaildMathod  = errors.New("invaild http method")
+)
 
 type Server struct {
-	server   http.Server
-	handlers ServerHandlers
+	server       http.Server
+	handlers     []Handler
+	errorHandler func(error)
 }
 
-func (s *Server) New(handlers ServerHandlers, port uint16) {
-	s.handlers = handlers
+func (s *Server) handler(w http.ResponseWriter, r *http.Request) {
+	reqPath := NewPath(r.URL.Path)
+	pathParam := map[string]string{}
+	var err error
+	handler := Handler{}
+
+	for _, handler = range s.handlers {
+		pathParam, err = reqPath.RoutePath(handler.path)
+		if err == nil {
+			break
+		}
+	}
+
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte{})
+		return
+	}
+
+	if handler.method != r.Method {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte{})
+		return
+	}
+
+	handler.handler(w, r, pathParam)
+}
+
+func NewServer(port uint32, errorHandler func(error)) *Server {
+	s := Server{}
+	s.handlers = make([]Handler, 0, 3)
+	s.errorHandler = errorHandler
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/send/", s.sendHandler)
-	mux.HandleFunc("/receive/", s.receiveHandler)
-	mux.HandleFunc("/devices", s.getDevices)
-	mux.HandleFunc("/devices/", s.getDevice)
+	mux.HandleFunc("/", s.handler)
 
 	s.server = http.Server{
 		Addr:    fmt.Sprintf(":%d", port),
 		Handler: mux,
 	}
+
+	return &s
 }
 
-func (s Server) Start() error {
+func (s *Server) AddHandler(method string, path string, handler HandlerFunc) {
+	h := Handler{
+		method:  method,
+		path:    strings.Split(path, "/"),
+		handler: handler,
+	}
+	s.handlers = append(s.handlers, h)
+}
+
+func (s *Server) Start() error {
 	go func() {
 		if err := s.server.ListenAndServe(); err != nil {
-			s.handlers.ErrHandler(err)
+			s.errorHandler(err)
 		}
 	}()
 	return nil
 }
 
-func (s Server) Stop(timeout time.Duration) error {
+func (s *Server) Stop(timeout time.Duration) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 
 	defer cancel()
