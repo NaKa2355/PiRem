@@ -16,8 +16,9 @@ func errHandler(err error) {
 }
 
 func main() {
-
+	fmt.Println("starting daemon...")
 	daemon := daemon.NewDaemon(8080, errHandler)
+	fmt.Println("daemon started")
 
 	for i := 0; i < 2; i++ {
 		mockdev := ErrMockDev{}
