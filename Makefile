@@ -16,6 +16,6 @@ install: piremd daemon_install_files/piremd.service
 	rm piremd
 
 uninstall:
-	rm piremd $(daemon_bin_path)
+	rm $(daemon_bin_path)
 	rm $(service_path)
 	sudo systemctl daemon-reload
