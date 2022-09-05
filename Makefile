@@ -5,6 +5,7 @@ service_path=/lib/systemd/system/piremd.service
 plugins_path=/opt/piremd
 
 build:
+	git pull origin main
 	go build -o $(bin) .
 	@echo "build completed!"
 
@@ -36,7 +37,6 @@ uninstall:
 	@echo "uninstall completed..."
 
 update: bin/piremd
-	git pull origin main
 	rm $(daemon_bin_path)
 	cp $^ $(daemon_bin_path) #copy daemon binary to right place
 	rm $(bin)
