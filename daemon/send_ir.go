@@ -14,7 +14,6 @@ func (d Daemon) sendIRReqWrapper(handler func(irdata.Data, string) error, devPar
 	f := func(w http.ResponseWriter, r *http.Request, pathParam map[string]string) {
 		req, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			d.errHandler(err)
 			d.sendError(err, w, http.StatusInternalServerError)
 			return
 		}
@@ -22,14 +21,12 @@ func (d Daemon) sendIRReqWrapper(handler func(irdata.Data, string) error, devPar
 		irData := irdata.Data{}
 		err = json.Unmarshal(req, &irData)
 		if err != nil {
-			d.errHandler(err)
 			d.sendError(err, w, http.StatusBadRequest)
 			return
 		}
 
 		err = handler(irData, pathParam[devParamKey])
 		if err != nil {
-			d.errHandler(err)
 			d.sendError(err, w, http.StatusInternalServerError)
 			return
 		}

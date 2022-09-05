@@ -18,14 +18,16 @@ func (d *Daemon) AddDevice(name string, dev irdevice.Device) {
 	d.devices[name] = dev
 }
 
-func (d Daemon) sendError(err error, w http.ResponseWriter, statusCode int) {
+func (d Daemon) sendError(inputErr error, w http.ResponseWriter, statusCode int) {
 	errJson := struct {
 		Err string `json:"error"`
 	}{}
-	errJson.Err = err.Error()
+	errJson.Err = inputErr.Error()
 
 	resp, err := json.Marshal(errJson)
 	if err != nil {
+		d.errHandler(inputErr)
+		d.errHandler(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

@@ -1,31 +1,43 @@
 package main
 
 import (
-	"fmt"
+	"encoding/json"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/signal"
 	"pirem/daemon"
-	"pirem/irdevice"
+	"pirem/defs"
 	"syscall"
-	"time"
 )
 
+const configFilePath = "/etc/piremd/config.json"
+
 func errHandler(err error) {
-	fmt.Println(err)
+	log.Println(err)
 }
 
 func main() {
-	fmt.Println("starting daemon...")
-	daemon := daemon.NewDaemon(8080, errHandler)
-	fmt.Println("daemon started")
+	log.Println("starting daemon...")
 
-	for i := 0; i < 2; i++ {
-		mockdev := ErrMockDev{}
-		dev := irdevice.Device{}
-		dev.InitMock("/test", 10*time.Second, mockdev)
-		dev.StartDispatcher()
-		daemon.AddDevice(fmt.Sprintf("test %d", i), dev)
+	jsonConfig, err := ioutil.ReadFile(configFilePath)
+	if err != nil {
+		log.Printf("faild to open file(%s): %s", configFilePath, defs.ErrInvaildInput)
+		os.Exit(1)
+	}
+
+	config := daemon.Config{}
+
+	err = json.Unmarshal(jsonConfig, &config)
+	if err != nil {
+		log.Printf("faild to parse config(%s): %s", configFilePath, defs.ErrInvaildInput)
+	}
+
+	daemon := daemon.NewDaemon(config.ServerPort, errHandler)
+	log.Println("daemon started")
+
+	for devName, dev := range config.Devices {
+		daemon.AddDevice(devName, dev)
 	}
 
 	daemon.Start()

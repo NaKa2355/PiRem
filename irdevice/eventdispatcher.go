@@ -2,9 +2,12 @@ package irdevice
 
 import (
 	"encoding/json"
+	"fmt"
+	"pirem/defs"
 	"pirem/irdata"
 	"pirem/irdevice/tx"
 	"pirem/message"
+	"plugin"
 	"time"
 
 	"github.com/NaKa2355/irdevctrl"
@@ -15,6 +18,22 @@ type EventDispatcher struct {
 }
 
 func (eventDispatcher *EventDispatcher) Init(pluginPath string, jsonDevConf json.RawMessage) error {
+	p, err := plugin.Open(pluginPath)
+	if err != nil {
+		return fmt.Errorf("faild to open plugin: %s", defs.ErrInvaildInput)
+	}
+
+	InitFromJson, err := p.Lookup("InitFromJson")
+	if err != nil {
+		return fmt.Errorf("loaded plugin does not have excepted function: %s", defs.ErrInvaildInput)
+	}
+
+	dev, err := InitFromJson.(func(json.RawMessage) (irdevctrl.Controller, error))(jsonDevConf)
+	if err != nil {
+		return fmt.Errorf("loaded plugin does not have excepted function: %s", defs.ErrInvaildInput)
+	}
+
+	eventDispatcher.dev = dev
 	return nil
 }
 
