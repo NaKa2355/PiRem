@@ -35,4 +35,9 @@ uninstall:
 
 	@echo "uninstall completed..."
 
+update: bin/piremd
+	cp $^ $(daemon_bin_path) #copy daemon binary to right place
+	rm $(bin)
+	@echo "update completed!"
+
 all: build
