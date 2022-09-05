@@ -1,5 +1,5 @@
 bin=bin/piremd
-daemon_bin_path=/usr/sbin
+daemon_bin_path=/usr/sbin/piremd
 config_path=/etc/piremd
 service_path=/lib/systemd/system/piremd.service
 plugins_path=/opt/piremd
@@ -32,7 +32,7 @@ uninstall:
 	-rm -rf $(plugins_path)
 
 	systemctl daemon-reload
-	
+
 	@echo "uninstall completed..."
 
 all: build
