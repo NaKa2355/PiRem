@@ -36,6 +36,7 @@ uninstall:
 	@echo "uninstall completed..."
 
 update: bin/piremd
+	git pull origin main
 	rm $(daemon_bin_path)
 	cp $^ $(daemon_bin_path) #copy daemon binary to right place
 	rm $(bin)
