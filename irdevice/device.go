@@ -86,11 +86,9 @@ func (dev Device) Drop() {
 
 func (dev *Device) UnmarshalJSON(data []byte) error {
 	devicePrim := struct {
-		PluginPath string             `json:"plugin_path"`
-		BuffSize   uint16             `json:"buffsize"`
-		Features   irdevctrl.Features `json:"features"`
-		Timeout    int                `json:"timeout"`
-		DeviceConf json.RawMessage    `json:"device_config"`
+		PluginPath string          `json:"plugin_path"`
+		Timeout    int             `json:"timeout"`
+		DeviceConf json.RawMessage `json:"device_config"`
 	}{}
 
 	if err := json.Unmarshal(data, &devicePrim); err != nil {
@@ -103,8 +101,8 @@ func (dev *Device) UnmarshalJSON(data []byte) error {
 	}
 
 	dev.pluginPath = devicePrim.PluginPath
-	dev.buffSize = devicePrim.BuffSize
-	dev.featurs = devicePrim.Features
+	dev.buffSize = eventDispatcher.GetBufferSize()
+	dev.featurs = eventDispatcher.GetFeatures()
 	dev.timeout = time.Duration(devicePrim.Timeout) * time.Second
 	dev.eventDispatcher = eventDispatcher
 	return nil
