@@ -36,7 +36,6 @@ func main() {
 	log.Println("daemon started")
 
 	for devName, dev := range config.Devices {
-		dev.StartDispatcher()
 		daemon.AddDevice(devName, dev)
 	}
 

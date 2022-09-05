@@ -15,6 +15,7 @@ type Daemon struct {
 }
 
 func (d *Daemon) AddDevice(name string, dev irdevice.Device) {
+	dev.StartDispatcher()
 	d.devices[name] = dev
 }
 
