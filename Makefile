@@ -7,6 +7,7 @@ configure:
 
 piremd: configure
 	go build -o piremd .
+	chmod 711 piremd
 
 install: piremd piremd.service
 	cp piremd $(daemon_bin_path)
