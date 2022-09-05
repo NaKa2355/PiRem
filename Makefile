@@ -9,9 +9,9 @@ piremd: configure
 	go build -o piremd .
 	chmod 711 piremd
 
-install: piremd piremd.service
+install: piremd daemon_install_files/piremd.service
 	cp piremd $(daemon_bin_path)
-	cp piremd.service $(service_path)
+	cp daemon_install_files/piremd.service $(service_path)
 	sudo systemctl daemon-reload
 	rm piremd
 
