@@ -2,8 +2,8 @@ daemon_bin_path=/usr/sbin/piremd
 service_path=/lib/systemd/system/piremd.service
 
 configure:
-	ls /usr/sbin
-	ls /lib/systemd/system
+	@ls /usr/sbin > /dev/null
+	@ls /lib/systemd/system > /dev/null
 
 piremd: configure
 	go build -o piremd .
