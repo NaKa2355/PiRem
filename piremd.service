@@ -3,4 +3,4 @@ Description=infrared controller for linux
 
 [Service]
 Type=simple
-ExecStart=/usr/sbin
+ExecStart=/usr/sbin/piremd
