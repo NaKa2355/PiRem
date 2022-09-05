@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/signal"
 	"pirem/daemon"
-	"pirem/defs"
 	"syscall"
 )
 
@@ -22,7 +21,7 @@ func main() {
 
 	jsonConfig, err := ioutil.ReadFile(configFilePath)
 	if err != nil {
-		log.Printf("faild to open file(%s): %s", configFilePath, defs.ErrInvaildInput)
+		log.Printf("faild to open file(%s): %s", configFilePath, err)
 		os.Exit(1)
 	}
 
@@ -30,7 +29,7 @@ func main() {
 
 	err = json.Unmarshal(jsonConfig, &config)
 	if err != nil {
-		log.Printf("faild to parse config(%s): %s", configFilePath, defs.ErrInvaildInput)
+		log.Printf("faild to parse config(%s): %s", configFilePath, err)
 	}
 
 	daemon := daemon.NewDaemon(config.ServerPort, errHandler)
