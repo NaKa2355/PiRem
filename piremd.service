@@ -1,0 +1,6 @@
+[Unit]
+Description=infrared controller for linux
+
+[Service]
+Type=simple
+ExecStart=/usr/sbin
