@@ -1,5 +1,5 @@
 [Unit]
-Description=infrared controller for linux
+Description=Infrared controller for linux. config file: (/etc/piremd/config.json)
 
 [Service]
 Type=simple

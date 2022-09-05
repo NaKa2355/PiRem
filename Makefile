@@ -1,27 +1,32 @@
-daemon_bin_path=/usr/sbin/piremd
+bin = bin
+daemon_bin_path=/usr/sbin
+config_path=/etc/pirem
 service_path=/lib/systemd/system/piremd.service
-config_path=/etc/piremd
+plugins_path=/etc/piremd
 
-configure:
-	@ls /dev/null
-	@ls /usr/sbin > /dev/null
-	@ls /lib/systemd/system > /dev/null
-	@ls /etc > /dev/null
+build:
+	go build -o bin/piremd .
+	echo "build completed!"
 
-piremd: configure
-	go build -o piremd .
-	chmod 711 piremd
+install: bin/piremd
+	cp $^ daemon_bin_path #copy daemon binary to right place
+	sudo cp daemon_install_files/piremd.service $(service_path) #copy systemd service file to right place
 
-install: piremd daemon_install_files/piremd.service
-	sudo cp piremd $(daemon_bin_path)
-	rm piremd
-	sudo cp daemon_install_files/piremd.service $(service_path)
-	-mkdir $(config_path)
-	sudo cp daemon_install_files/config.json $(config_path)
-	-systemctl daemon-reload
+	mkdir $(config_path) #make a directory that contains a config file
+	cp daemon_bin_path/config.json $(config_path) #copy the default config file to the directory
+	
+	mkdir $(plugins_path) #make a directory that contains plugin binaries
 
-uninstall: install
-	sudo rm $(daemon_bin_path)
-	sudo rm $(service_path)
-	sudo rm -rf $(config_path)
-	-systemctl daemon-reload
+	systemctl daemon-reload #reload daemon to recognize the service file
+	echo "install completed!"
+
+uninstall:
+	-rm $(daemon_bin_path)
+	-rm $(service_path)
+
+	-rm -rf $(config_path)
+	-rm -rf $(plugins_path)
+
+	echo "uninstall completed..."
+
+all: build
