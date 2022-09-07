@@ -71,6 +71,7 @@ func (d Daemon) Start() error {
 	for _, dev := range d.devices {
 		dev.StartDispatcher()
 	}
+	d.server.Start()
 
 	return nil
 }
