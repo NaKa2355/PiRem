@@ -19,6 +19,7 @@ func (d *Daemon) AddDevice(name string, dev irdevice.Device) error {
 		return err
 	}
 	dev.StartDispatcher()
+	d.devices[name] = dev
 	println(d.devices[name].GetBuffSize())
 	return nil
 }
