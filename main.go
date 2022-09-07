@@ -36,12 +36,12 @@ func main() {
 	log.Println("daemon started")
 
 	for devName, dev := range config.Devices {
-		if err := dev.Setup(); err != nil {
+		if err := (&dev).Setup(); err != nil {
 			log.Println(err)
 			continue
 		}
 
-		dev.StartDispatcher()
+		(&dev).StartDispatcher()
 		daemon.AddDevice(devName, dev)
 	}
 

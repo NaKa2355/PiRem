@@ -16,7 +16,7 @@ import (
 	"github.com/NaKa2355/irdevctrl"
 )
 
-type Devices map[string]*Device
+type Devices map[string]Device
 
 type Device struct {
 	pluginPath      string

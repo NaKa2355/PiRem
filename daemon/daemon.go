@@ -9,13 +9,13 @@ import (
 )
 
 type Daemon struct {
-	devices    map[string]*irdevice.Device
+	devices    irdevice.Devices
 	server     *server.Server
 	errHandler func(error)
 }
 
 //デーモンに管理するデバイスを追加
-func (d *Daemon) AddDevice(name string, dev *irdevice.Device) error {
+func (d *Daemon) AddDevice(name string, dev irdevice.Device) error {
 	d.devices[name] = dev
 	return nil
 }
@@ -52,7 +52,7 @@ func (d *Daemon) Stop() error {
 
 func NewDaemon(serverPort uint16, errHandler func(error)) Daemon {
 	d := Daemon{
-		devices:    make(map[string]*irdevice.Device),
+		devices:    irdevice.Devices{},
 		errHandler: errHandler,
 	}
 	d.server = server.NewServer(uint32(serverPort), d.errHandler)
