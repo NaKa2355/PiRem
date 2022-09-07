@@ -58,7 +58,7 @@ func NewDaemon(serverPort uint16, errHandler func(error)) Daemon {
 	d.server.AddHandler("GET", "/devices/:deviceName", d.getDevReqWrapper(d.getDeviceHandler, "deviceName"))
 	d.server.AddHandler("GET", "/receive/:deviceName", d.recvIRReqWrapper(d.receiveIRHandler, "deviceName"))
 	d.server.AddHandler("POST", "/send/:deviceName", d.sendIRReqWrapper(d.sendIRHandler, "deviceName"))
-	return &d
+	return d
 }
 
 func (d *Daemon) Start() error {
