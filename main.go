@@ -36,12 +36,19 @@ func main() {
 	log.Println("daemon started")
 
 	for devName, dev := range config.Devices {
+		if err := dev.Setup(); err != nil {
+			log.Println(err)
+			continue
+		}
+
+		dev.StartDispatcher()
 		daemon.AddDevice(devName, dev)
 	}
 
 	err = daemon.Start()
 	if err != nil {
 		log.Println(err)
+		return
 	}
 
 	quit := make(chan os.Signal, 1)
@@ -49,5 +56,4 @@ func main() {
 	log.Printf("SIGNAL %d received, then shutting down...\n", <-quit)
 	daemon.Stop()
 	log.Printf("daemon stopped")
-
 }

@@ -66,6 +66,5 @@ func NewDaemon(serverPort uint16, errHandler func(error)) Daemon {
 
 func (d *Daemon) Start() error {
 	d.server.Start()
-
 	return nil
 }
