@@ -24,6 +24,7 @@ type Device struct {
 	timeout         time.Duration
 	featurs         irdevctrl.Features
 	reqChan         chan<- message.Message
+	deviceConfig    json.RawMessage
 	eventDispatcher EventDispatcher
 }
 
@@ -42,6 +43,18 @@ func (dev *Device) StartDispatcher() {
 	dev.reqChan = reqChan
 
 	go dev.eventDispatcher.Start(reqChan)
+}
+
+func (dev *Device) Setup() error {
+	eventDispatcher := EventDispatcher{}
+	if err := eventDispatcher.Init(dev.pluginPath, dev.deviceConfig); err != nil {
+		return err
+	}
+
+	dev.eventDispatcher = eventDispatcher
+	dev.buffSize = eventDispatcher.GetBufferSize()
+	dev.featurs = eventDispatcher.GetFeatures()
+	return nil
 }
 
 func (dev Device) GetPluginPath() string {
@@ -95,16 +108,9 @@ func (dev *Device) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	eventDispatcher := EventDispatcher{}
-	if err := eventDispatcher.Init(devicePrim.PluginPath, devicePrim.DeviceConf); err != nil {
-		return err
-	}
-
 	dev.pluginPath = devicePrim.PluginPath
-	dev.buffSize = eventDispatcher.GetBufferSize()
-	dev.featurs = eventDispatcher.GetFeatures()
 	dev.timeout = time.Duration(devicePrim.Timeout) * time.Second
-	dev.eventDispatcher = eventDispatcher
+	dev.deviceConfig = devicePrim.DeviceConf
 	return nil
 }
 

@@ -15,7 +15,6 @@ type Daemon struct {
 }
 
 func (d *Daemon) AddDevice(name string, dev irdevice.Device) {
-	dev.StartDispatcher()
 	d.devices[name] = dev
 }
 
@@ -62,6 +61,16 @@ func NewDaemon(serverPort uint16, errHandler func(error)) Daemon {
 	return d
 }
 
-func (d Daemon) Start() {
-	d.server.Start()
+func (d Daemon) Start() error {
+	for _, dev := range d.devices {
+		if err := dev.Setup(); err != nil {
+			return err
+		}
+	}
+
+	for _, dev := range d.devices {
+		dev.StartDispatcher()
+	}
+
+	return nil
 }

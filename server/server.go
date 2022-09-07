@@ -15,9 +15,10 @@ var (
 )
 
 type Server struct {
-	server       http.Server
-	handlers     []Handler
-	errorHandler func(error)
+	server         http.Server
+	handlers       []Handler
+	errorHandler   func(error)
+	socketFilePath string
 }
 
 func (s *Server) handler(w http.ResponseWriter, r *http.Request) {
@@ -73,13 +74,12 @@ func (s *Server) AddHandler(method string, path string, handler HandlerFunc) {
 	s.handlers = append(s.handlers, h)
 }
 
-func (s *Server) Start() error {
+func (s *Server) Start() {
 	go func() {
 		if err := s.server.ListenAndServe(); err != nil {
 			s.errorHandler(err)
 		}
 	}()
-	return nil
 }
 
 func (s *Server) Stop(timeout time.Duration) error {
