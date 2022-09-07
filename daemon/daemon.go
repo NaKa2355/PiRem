@@ -15,13 +15,13 @@ type Daemon struct {
 }
 
 //デーモンに管理するデバイスを追加
-func (d *Daemon) AddDevice(name string, dev *irdevice.Device) error {
+func (d Daemon) AddDevice(name string, dev *irdevice.Device) error {
 	d.devices[name] = dev
 	return nil
 }
 
 //エラーをjsonにエンコードしてサーバーに送信
-func (d *Daemon) sendError(inputErr error, w http.ResponseWriter, statusCode int) {
+func (d Daemon) sendError(inputErr error, w http.ResponseWriter, statusCode int) {
 	errJson := struct {
 		Err string `json:"error"`
 	}{}
@@ -38,7 +38,7 @@ func (d *Daemon) sendError(inputErr error, w http.ResponseWriter, statusCode int
 	w.Write(resp)
 }
 
-func (d *Daemon) Stop() error {
+func (d Daemon) Stop() error {
 	if err := d.server.Stop(15 * time.Second); err != nil {
 		return err
 	}
@@ -50,7 +50,7 @@ func (d *Daemon) Stop() error {
 	return nil
 }
 
-func NewDaemon(serverPort uint16, errHandler func(error)) Daemon {
+func NewDaemon(serverPort uint16, errHandler func(error)) *Daemon {
 	d := Daemon{
 		devices:    irdevice.Devices{},
 		errHandler: errHandler,
@@ -61,10 +61,10 @@ func NewDaemon(serverPort uint16, errHandler func(error)) Daemon {
 	d.server.AddHandler("GET", "/devices/:deviceName", d.getDevReqWrapper(d.getDeviceHandler, "deviceName"))
 	d.server.AddHandler("GET", "/receive/:deviceName", d.recvIRReqWrapper(d.receiveIRHandler, "deviceName"))
 	d.server.AddHandler("POST", "/send/:deviceName", d.sendIRReqWrapper(d.sendIRHandler, "deviceName"))
-	return d
+	return &d
 }
 
-func (d *Daemon) Start() error {
+func (d Daemon) Start() error {
 	d.server.Start()
 	return nil
 }
