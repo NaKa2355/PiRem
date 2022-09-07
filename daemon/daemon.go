@@ -18,7 +18,7 @@ func (d *Daemon) AddDevice(name string, dev irdevice.Device) {
 	d.devices[name] = dev
 }
 
-func (d Daemon) sendError(inputErr error, w http.ResponseWriter, statusCode int) {
+func (d *Daemon) sendError(inputErr error, w http.ResponseWriter, statusCode int) {
 	errJson := struct {
 		Err string `json:"error"`
 	}{}
@@ -35,7 +35,7 @@ func (d Daemon) sendError(inputErr error, w http.ResponseWriter, statusCode int)
 	w.Write(resp)
 }
 
-func (d Daemon) Stop() error {
+func (d *Daemon) Stop() error {
 	if err := d.server.Stop(15 * time.Second); err != nil {
 		return err
 	}
@@ -58,10 +58,10 @@ func NewDaemon(serverPort uint16, errHandler func(error)) Daemon {
 	d.server.AddHandler("GET", "/devices/:deviceName", d.getDevReqWrapper(d.getDeviceHandler, "deviceName"))
 	d.server.AddHandler("GET", "/receive/:deviceName", d.recvIRReqWrapper(d.receiveIRHandler, "deviceName"))
 	d.server.AddHandler("POST", "/send/:deviceName", d.sendIRReqWrapper(d.sendIRHandler, "deviceName"))
-	return d
+	return &d
 }
 
-func (d Daemon) Start() error {
+func (d *Daemon) Start() error {
 	for _, dev := range d.devices {
 		if err := dev.Setup(); err != nil {
 			return err
