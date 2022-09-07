@@ -9,6 +9,7 @@ import (
 	"pirem/server"
 )
 
+// net/httpのハンドラ関数をラップして扱いやすくする
 func (d Daemon) getDevReqWrapper(handler func(string) (irdevice.Device, error), devParamKey string) server.HandlerFunc {
 	f := func(w http.ResponseWriter, r *http.Request, pathParam map[string]string) {
 		device, err := handler(pathParam[devParamKey])

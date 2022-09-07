@@ -10,6 +10,7 @@ import (
 	"pirem/server"
 )
 
+// net/httpのハンドラ関数をラップして扱いやすくする
 func (d Daemon) sendIRReqWrapper(handler func(irdata.Data, string) error, devParamKey string) server.HandlerFunc {
 	f := func(w http.ResponseWriter, r *http.Request, pathParam map[string]string) {
 		req, err := ioutil.ReadAll(r.Body)

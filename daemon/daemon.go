@@ -14,16 +14,13 @@ type Daemon struct {
 	errHandler func(error)
 }
 
+//デーモンに管理するデバイスを追加
 func (d *Daemon) AddDevice(name string, dev irdevice.Device) error {
-	if err := dev.Setup(); err != nil {
-		return err
-	}
-	dev.StartDispatcher()
 	d.devices[name] = dev
-	println(d.devices[name].GetBuffSize())
 	return nil
 }
 
+//エラーをjsonにエンコードしてサーバーに送信
 func (d *Daemon) sendError(inputErr error, w http.ResponseWriter, statusCode int) {
 	errJson := struct {
 		Err string `json:"error"`
