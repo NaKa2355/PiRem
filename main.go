@@ -39,7 +39,10 @@ func main() {
 		daemon.AddDevice(devName, dev)
 	}
 
-	daemon.Start()
+	err = daemon.Start()
+	if err != nil {
+		log.Println(err)
+	}
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, os.Interrupt)
