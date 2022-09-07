@@ -53,7 +53,6 @@ func (dev *Device) Setup() error {
 
 	dev.eventDispatcher = eventDispatcher
 	dev.buffSize = eventDispatcher.GetBufferSize()
-	println(dev.buffSize)
 	dev.featurs = eventDispatcher.GetFeatures()
 	return nil
 }
