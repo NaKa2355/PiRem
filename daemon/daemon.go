@@ -18,7 +18,7 @@ func (d *Daemon) AddDevice(name string, dev irdevice.Device) error {
 	if err := dev.Setup(); err != nil {
 		return err
 	}
-	d.devices[name] = dev
+	dev.StartDispatcher()
 	println(d.devices[name].GetBuffSize())
 	return nil
 }
@@ -67,9 +67,6 @@ func NewDaemon(serverPort uint16, errHandler func(error)) Daemon {
 }
 
 func (d *Daemon) Start() error {
-	for _, dev := range d.devices {
-		dev.StartDispatcher()
-	}
 	d.server.Start()
 
 	return nil
