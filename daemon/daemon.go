@@ -15,7 +15,7 @@ type Daemon struct {
 }
 
 //デーモンに管理するデバイスを追加
-func (d *Daemon) AddDevice(name string, dev irdevice.Device) error {
+func (d *Daemon) AddDevice(name string, dev *irdevice.Device) error {
 	d.devices[name] = dev
 	return nil
 }
