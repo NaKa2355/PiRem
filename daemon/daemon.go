@@ -14,8 +14,12 @@ type Daemon struct {
 	errHandler func(error)
 }
 
-func (d *Daemon) AddDevice(name string, dev irdevice.Device) {
+func (d *Daemon) AddDevice(name string, dev irdevice.Device) error {
+	if err := dev.Setup(); err != nil {
+		return err
+	}
 	d.devices[name] = dev
+	return nil
 }
 
 func (d *Daemon) sendError(inputErr error, w http.ResponseWriter, statusCode int) {
@@ -62,12 +66,6 @@ func NewDaemon(serverPort uint16, errHandler func(error)) Daemon {
 }
 
 func (d *Daemon) Start() error {
-	for _, dev := range d.devices {
-		if err := dev.Setup(); err != nil {
-			return err
-		}
-	}
-
 	for _, dev := range d.devices {
 		dev.StartDispatcher()
 	}
