@@ -73,7 +73,7 @@ func (dev Device) SendIR(irdata irdata.Data) error {
 	m := message.NewRoundTrip(tx.NewSendIRReq(irdata))
 	dev.reqChan <- m
 
-	resp, err := m.Receive()
+	resp, err := m.Receive(dev.timeout)
 	if err != nil {
 		return err
 	}
@@ -85,7 +85,7 @@ func (dev Device) ReceiveIR() (irdata.Data, error) {
 	m := message.NewRoundTrip(tx.RecvIRReq{})
 	dev.reqChan <- m
 
-	resp, err := m.Receive()
+	resp, err := m.Receive(dev.timeout)
 	if err != nil {
 		return irdata.Data{}, err
 	}
