@@ -2,6 +2,7 @@ package daemon
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"pirem/irdevice"
 	"pirem/server"
@@ -65,6 +66,7 @@ func NewDaemon(serverPort uint16, errHandler func(error)) *Daemon {
 }
 
 func (d Daemon) Start() error {
+	d.errHandler(errors.New("test"))
 	d.server.Start()
 	return nil
 }

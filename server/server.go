@@ -51,7 +51,7 @@ func (s *Server) handler(w http.ResponseWriter, r *http.Request) {
 
 func NewServer(port uint32, errorHandler func(error)) *Server {
 	s := Server{}
-	s.handlers = make([]Handler, 0, 3)
+	s.handlers = make([]Handler, 0, 4)
 	s.errorHandler = errorHandler
 
 	mux := http.NewServeMux()
