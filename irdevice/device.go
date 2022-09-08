@@ -11,6 +11,7 @@ import (
 	"pirem/irdata"
 	"pirem/irdevice/tx"
 	"pirem/message"
+	"sync"
 	"time"
 
 	"github.com/NaKa2355/irdevctrl"
@@ -19,6 +20,7 @@ import (
 type Devices map[string]*Device
 
 type Device struct {
+	mu           sync.RWMutex
 	pluginPath   string
 	buffSize     uint16
 	timeout      time.Duration
@@ -56,54 +58,78 @@ func (dev *Device) Setup() error {
 		return err
 	}
 
+	dev.mu.Lock()
 	dev.buffSize = eventDispatcher.GetBufferSize()
 	dev.featurs = eventDispatcher.GetFeatures()
 
 	reqChan := make(chan message.Message)
 	dev.reqChan = reqChan
+	dev.mu.Unlock()
 
 	go eventDispatcher.Start(reqChan)
 	return nil
 }
 
-func (dev Device) GetPluginPath() string {
-	return dev.pluginPath
+func (dev *Device) GetPluginPath() string {
+	var pluginPath string
+	dev.mu.RLock()
+	pluginPath = dev.pluginPath
+	dev.mu.RUnlock()
+	return pluginPath
 }
 
-func (dev Device) GetBuffSize() uint16 {
-	return dev.buffSize
+func (dev *Device) GetBuffSize() uint16 {
+	var buffSize uint16
+	dev.mu.RLock()
+	buffSize = dev.buffSize
+	dev.mu.RUnlock()
+	return buffSize
 }
 
-func (dev Device) GetFeatures() irdevctrl.Features {
-	return dev.featurs
+func (dev *Device) GetFeatures() irdevctrl.Features {
+	var features irdevctrl.Features
+	dev.mu.RLock()
+	features = dev.featurs
+	dev.mu.RUnlock()
+	return features
 }
 
-func (dev Device) SendIR(irdata irdata.Data) error {
+func (dev *Device) SendIR(irdata irdata.Data) error {
 	m := message.NewRoundTrip(tx.NewSendIRReq(irdata))
+
+	dev.mu.RLock()
 	dev.reqChan <- m
 
 	resp, err := m.Receive(dev.timeout)
 	if err != nil {
+		dev.mu.RLock()
 		return err
 	}
 
+	dev.mu.RUnlock()
 	return resp.GetValue().(tx.SendIRResp).GetValue()
 }
 
-func (dev Device) ReceiveIR() (irdata.Data, error) {
+func (dev *Device) ReceiveIR() (irdata.Data, error) {
 	m := message.NewRoundTrip(tx.RecvIRReq{})
+
+	dev.mu.RLock()
 	dev.reqChan <- m
 
 	resp, err := m.Receive(dev.timeout)
 	if err != nil {
+		dev.mu.RUnlock()
 		return irdata.Data{}, err
 	}
 
+	dev.mu.RUnlock()
 	return resp.GetValue().(tx.RecvIRResp).GetValue()
 }
 
-func (dev Device) Drop() {
+func (dev *Device) Drop() {
+	dev.mu.Lock()
 	close(dev.reqChan)
+	dev.mu.Unlock()
 }
 
 func (dev *Device) UnmarshalJSON(data []byte) error {
@@ -117,22 +143,26 @@ func (dev *Device) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
+	dev.mu.Lock()
 	dev.pluginPath = devicePrim.PluginPath
 	dev.timeout = time.Duration(devicePrim.Timeout) * time.Second
 	dev.deviceConfig = devicePrim.DeviceConf
+	dev.mu.Unlock()
 	return nil
 }
 
-func (dev Device) MarshalJSON() ([]byte, error) {
+func (dev *Device) MarshalJSON() ([]byte, error) {
 	devicePrim := struct {
 		PluginPath string             `json:"plugin_path"`
 		BuffSize   uint16             `json:"buffsize"`
 		Features   irdevctrl.Features `json:"features"`
 	}{}
 
+	dev.mu.RLock()
 	devicePrim.BuffSize = dev.buffSize
 	devicePrim.Features = dev.featurs
 	devicePrim.PluginPath = dev.pluginPath
+	dev.mu.RUnlock()
 
 	return json.Marshal(devicePrim)
 }
