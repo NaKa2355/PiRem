@@ -19,31 +19,36 @@ import (
 type Devices map[string]*Device
 
 type Device struct {
-	pluginPath      string
-	buffSize        uint16
-	timeout         time.Duration
-	featurs         irdevctrl.Features
-	reqChan         chan<- message.Message
-	deviceConfig    json.RawMessage
-	eventDispatcher EventDispatcher
+	pluginPath   string
+	buffSize     uint16
+	timeout      time.Duration
+	featurs      irdevctrl.Features
+	reqChan      chan<- message.Message
+	deviceConfig json.RawMessage
+	//eventDispatcher EventDispatcher
 }
 
-func (dev *Device) InitMock(plugin_path string, timeout time.Duration, mock irdevctrl.Controller) {
+func (dev *Device) InitAndSetupMock(plugin_path string, timeout time.Duration, mock irdevctrl.Controller) {
 	eventDispatcher := EventDispatcher{}
 	dev.pluginPath = plugin_path
 	eventDispatcher.InitMock(mock)
 	dev.buffSize = eventDispatcher.GetBufferSize()
 	dev.featurs = eventDispatcher.GetFeatures()
 	dev.timeout = timeout
-	dev.eventDispatcher = eventDispatcher
+	reqChan := make(chan message.Message)
+	dev.reqChan = reqChan
+
+	go eventDispatcher.Start(reqChan)
 }
 
-func (dev *Device) StartDispatcher() {
+/*
+func (dev *Device) StartDispatching() {
 	reqChan := make(chan message.Message)
 	dev.reqChan = reqChan
 
 	go dev.eventDispatcher.Start(reqChan)
 }
+*/
 
 func (dev *Device) Setup() error {
 	eventDispatcher := EventDispatcher{}
@@ -51,9 +56,13 @@ func (dev *Device) Setup() error {
 		return err
 	}
 
-	dev.eventDispatcher = eventDispatcher
 	dev.buffSize = eventDispatcher.GetBufferSize()
 	dev.featurs = eventDispatcher.GetFeatures()
+
+	reqChan := make(chan message.Message)
+	dev.reqChan = reqChan
+
+	go eventDispatcher.Start(reqChan)
 	return nil
 }
 

@@ -40,8 +40,6 @@ func main() {
 			log.Println(err)
 			continue
 		}
-
-		dev.StartDispatcher()
 		daemon.AddDevice(devName, dev)
 	}
 
@@ -53,7 +51,11 @@ func main() {
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, os.Interrupt)
-	log.Printf("SIGNAL %d received, then shutting down...\n", <-quit)
-	daemon.Stop()
-	log.Printf("daemon stopped")
+	log.Printf("SIGNAL %d received, shutting down...\n", <-quit)
+	if err := daemon.Stop(); err != nil {
+		log.Printf("daemon was stopped forcely")
+		return
+	}
+
+	log.Printf("daemon was stopped normally")
 }

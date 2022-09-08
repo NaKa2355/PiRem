@@ -10,16 +10,16 @@ import (
 )
 
 // net/httpのハンドラ関数をラップして扱いやすくする
-func (d Daemon) recvIRReqWrapper(handler func(string) (irdata.Data, error), devParamKey string) server.HandlerFunc {
+func recvIRReqWrapper(handler func(string) (irdata.Data, error), paramKey string, errHandler func(error)) server.HandlerFunc {
 	f := func(w http.ResponseWriter, r *http.Request, pathParam map[string]string) {
-		irData, err := handler(pathParam[devParamKey])
+		irData, err := handler(pathParam[paramKey])
 		if err != nil {
-			d.sendError(err, w, http.StatusInternalServerError)
+			sendError(err, w, http.StatusInternalServerError, errHandler)
 			return
 		}
 		resp, err := json.Marshal(irData)
 		if err != nil {
-			d.sendError(err, w, http.StatusInternalServerError)
+			sendError(err, w, http.StatusInternalServerError, errHandler)
 			return
 		}
 		w.Header().Add("Content-Type", "application/json")

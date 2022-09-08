@@ -2,7 +2,6 @@ package daemon
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 	"pirem/irdevice"
 	"pirem/server"
@@ -22,7 +21,7 @@ func (d Daemon) AddDevice(name string, dev *irdevice.Device) error {
 }
 
 //エラーをjsonにエンコードしてサーバーに送信
-func (d Daemon) sendError(inputErr error, w http.ResponseWriter, statusCode int) {
+func sendError(inputErr error, w http.ResponseWriter, statusCode int, errHandler func(error)) {
 	errJson := struct {
 		Err string `json:"error"`
 	}{}
@@ -30,8 +29,8 @@ func (d Daemon) sendError(inputErr error, w http.ResponseWriter, statusCode int)
 
 	resp, err := json.Marshal(errJson)
 	if err != nil {
-		d.errHandler(inputErr)
-		d.errHandler(err)
+		errHandler(inputErr)
+		errHandler(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -58,15 +57,14 @@ func NewDaemon(serverPort uint16, errHandler func(error)) *Daemon {
 	}
 	d.server = server.NewServer(uint32(serverPort), d.errHandler)
 
-	d.server.AddHandler("GET", "/devices", d.getDevsReqWrapper(d.getDevicesHandler))
-	d.server.AddHandler("GET", "/devices/:deviceName", d.getDevReqWrapper(d.getDeviceHandler, "deviceName"))
-	d.server.AddHandler("GET", "/receive/:deviceName", d.recvIRReqWrapper(d.receiveIRHandler, "deviceName"))
-	d.server.AddHandler("POST", "/send/:deviceName", d.sendIRReqWrapper(d.sendIRHandler, "deviceName"))
+	d.server.AddHandler("GET", "/devices", getDevsReqWrapper(d.getDevicesHandler, d.errHandler))
+	d.server.AddHandler("GET", "/devices/:deviceName", getDevReqWrapper(d.getDeviceHandler, "deviceName", d.errHandler))
+	d.server.AddHandler("GET", "/receive/:deviceName", recvIRReqWrapper(d.receiveIRHandler, "deviceName", d.errHandler))
+	d.server.AddHandler("POST", "/send/:deviceName", sendIRReqWrapper(d.sendIRHandler, "deviceName", d.errHandler))
 	return &d
 }
 
 func (d Daemon) Start() error {
-	d.errHandler(errors.New("test"))
 	d.server.Start()
 	return nil
 }

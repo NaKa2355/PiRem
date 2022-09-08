@@ -8,17 +8,17 @@ import (
 )
 
 // net/httpのハンドラ関数をラップして扱いやすくする
-func (d Daemon) getDevsReqWrapper(handler func() (irdevice.Devices, error)) server.HandlerFunc {
+func getDevsReqWrapper(handler func() (irdevice.Devices, error), errHandler func(error)) server.HandlerFunc {
 	f := func(w http.ResponseWriter, r *http.Request, pathParam map[string]string) {
 		devices, err := handler()
 		if err != nil {
-			d.sendError(err, w, http.StatusInternalServerError)
+			sendError(err, w, http.StatusInternalServerError, errHandler)
 			return
 		}
 
 		resp, err := json.Marshal(devices)
 		if err != nil {
-			d.sendError(err, w, http.StatusInternalServerError)
+			sendError(err, w, http.StatusInternalServerError, errHandler)
 			return
 		}
 
