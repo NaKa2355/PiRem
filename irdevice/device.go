@@ -27,7 +27,6 @@ type Device struct {
 	featurs      irdevctrl.Features
 	reqChan      chan<- message.Message
 	deviceConfig json.RawMessage
-	//eventDispatcher EventDispatcher
 }
 
 func (dev *Device) InitAndSetupMock(plugin_path string, timeout time.Duration, mock irdevctrl.Controller) {
@@ -42,15 +41,6 @@ func (dev *Device) InitAndSetupMock(plugin_path string, timeout time.Duration, m
 
 	go eventDispatcher.Start(reqChan)
 }
-
-/*
-func (dev *Device) StartDispatching() {
-	reqChan := make(chan message.Message)
-	dev.reqChan = reqChan
-
-	go dev.eventDispatcher.Start(reqChan)
-}
-*/
 
 func (dev *Device) Setup() error {
 	eventDispatcher := EventDispatcher{}
