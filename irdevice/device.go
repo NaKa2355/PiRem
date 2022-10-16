@@ -24,6 +24,7 @@ type Device struct {
 	pluginPath   string
 	buffSize     uint16
 	timeout      time.Duration
+	name         string
 	featurs      irdevctrl.Features
 	reqChan      chan<- message.Message
 	deviceConfig json.RawMessage
@@ -127,6 +128,7 @@ func (dev *Device) UnmarshalJSON(data []byte) error {
 		PluginPath string          `json:"plugin_path"`
 		Timeout    int             `json:"timeout"`
 		DeviceConf json.RawMessage `json:"device_config"`
+		Name       string          `json:"name"`
 	}{}
 
 	if err := json.Unmarshal(data, &devicePrim); err != nil {
@@ -137,18 +139,21 @@ func (dev *Device) UnmarshalJSON(data []byte) error {
 	dev.pluginPath = devicePrim.PluginPath
 	dev.timeout = time.Duration(devicePrim.Timeout) * time.Second
 	dev.deviceConfig = devicePrim.DeviceConf
+	dev.name = devicePrim.Name
 	dev.mu.Unlock()
 	return nil
 }
 
 func (dev *Device) MarshalJSON() ([]byte, error) {
 	devicePrim := struct {
+		Name       string             `json:"name"`
 		PluginPath string             `json:"plugin_path"`
 		BuffSize   uint16             `json:"buffsize"`
 		Features   irdevctrl.Features `json:"features"`
 	}{}
 
 	dev.mu.RLock()
+	devicePrim.Name = dev.name
 	devicePrim.BuffSize = dev.buffSize
 	devicePrim.Features = dev.featurs
 	devicePrim.PluginPath = dev.pluginPath
