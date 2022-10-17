@@ -14,7 +14,7 @@ func getDevReqWrapper(handler func(string) (*irdevice.Device, error), paramKey s
 	f := func(r *http.Request, pathParam map[string]string) ([]byte, error) {
 		device, err := handler(pathParam[paramKey])
 		if err != nil {
-			return []byte(""), err
+			return []byte("{}"), err
 		}
 
 		return json.Marshal(device)

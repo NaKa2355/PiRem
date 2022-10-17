@@ -12,7 +12,7 @@ func getDevsReqWrapper(handler func() (irdevice.Devices, error)) server.ReqHandl
 	f := func(r *http.Request, pathParam map[string]string) ([]byte, error) {
 		devices, err := handler()
 		if err != nil {
-			return []byte(""), err
+			return []byte("{}"), err
 		}
 		return json.Marshal(devices)
 	}

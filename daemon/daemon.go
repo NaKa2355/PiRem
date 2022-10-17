@@ -1,8 +1,6 @@
 package daemon
 
 import (
-	"encoding/json"
-	"net/http"
 	"pirem/irdevice"
 	"pirem/server"
 	"time"
@@ -18,24 +16,6 @@ type Daemon struct {
 func (d Daemon) AddDevice(name string, dev *irdevice.Device) error {
 	d.devices[name] = dev
 	return nil
-}
-
-// エラーをjsonにエンコードしてサーバーに送信
-func sendError(inputErr error, w http.ResponseWriter, statusCode int, errHandler func(error)) {
-	errJson := struct {
-		Err string `json:"error"`
-	}{}
-	errJson.Err = inputErr.Error()
-
-	resp, err := json.Marshal(errJson)
-	if err != nil {
-		errHandler(inputErr)
-		errHandler(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	w.WriteHeader(statusCode)
-	w.Write(resp)
 }
 
 func (d Daemon) Stop() error {

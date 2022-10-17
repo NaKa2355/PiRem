@@ -14,7 +14,7 @@ func recvIRReqWrapper(handler func(string) (irdata.Data, error), paramKey string
 	f := func(r *http.Request, pathParam map[string]string) ([]byte, error) {
 		irData, err := handler(pathParam[paramKey])
 		if err != nil {
-			return []byte(""), err
+			return []byte("{}"), err
 		}
 		return json.Marshal(irData)
 	}

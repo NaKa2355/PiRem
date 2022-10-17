@@ -13,7 +13,7 @@ import (
 // net/httpのハンドラ関数をラップして扱いやすくする
 func sendIRReqWrapper(handler func(irdata.Data, string) error, paramKey string) server.ReqHandlerFunc {
 	f := func(r *http.Request, pathParam map[string]string) ([]byte, error) {
-		body := []byte("")
+		body := []byte("{}")
 		req, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			return body, err

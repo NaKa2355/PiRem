@@ -7,21 +7,21 @@ import (
 )
 
 type Responce struct {
-	Body    string `json:"body"`
-	Message string `json:"message"`
+	Body    json.RawMessage `json:"body"`
+	Message string          `json:"message"`
 }
 
 func respWrapper(handler server.ReqHandlerFunc, errHandler func(error)) server.RespHandlerFunc {
 	f := func(w http.ResponseWriter, r *http.Request, pathParam map[string]string) {
 		body, err := handler(r, pathParam)
-
 		resp := Responce{}
+
 		if err != nil {
-			resp.Body = ""
+			resp.Body = []byte("{}")
 			resp.Message = err.Error()
 			w.WriteHeader(http.StatusInternalServerError)
 		} else {
-			resp.Body = string(body)
+			resp.Body = body
 			resp.Message = "success"
 			w.WriteHeader(http.StatusOK)
 		}
