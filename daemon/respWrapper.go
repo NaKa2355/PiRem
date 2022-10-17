@@ -13,6 +13,7 @@ type Responce struct {
 
 func respWrapper(handler server.ReqHandlerFunc, errHandler func(error)) server.RespHandlerFunc {
 	f := func(w http.ResponseWriter, r *http.Request, pathParam map[string]string) {
+		w.Header().Add("Content-Type", "application/json")
 		body, err := handler(r, pathParam)
 		resp := Responce{}
 
@@ -34,7 +35,6 @@ func respWrapper(handler server.ReqHandlerFunc, errHandler func(error)) server.R
 		}
 
 		w.Write(strResp)
-		w.Header().Add("Content-Type", "application/json")
 	}
 	return f
 }
