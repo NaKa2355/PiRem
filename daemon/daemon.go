@@ -14,13 +14,13 @@ type Daemon struct {
 	errHandler func(error)
 }
 
-//デーモンに管理するデバイスを追加
+// デーモンに管理するデバイスを追加
 func (d Daemon) AddDevice(name string, dev *irdevice.Device) error {
 	d.devices[name] = dev
 	return nil
 }
 
-//エラーをjsonにエンコードしてサーバーに送信
+// エラーをjsonにエンコードしてサーバーに送信
 func sendError(inputErr error, w http.ResponseWriter, statusCode int, errHandler func(error)) {
 	errJson := struct {
 		Err string `json:"error"`
@@ -57,10 +57,10 @@ func NewDaemon(serverPort uint16, errHandler func(error)) *Daemon {
 	}
 	d.server = server.NewServer(uint32(serverPort), d.errHandler)
 
-	d.server.AddHandler("GET", "/devices", getDevsReqWrapper(d.getDevicesHandler, d.errHandler))
-	d.server.AddHandler("GET", "/devices/:deviceName", getDevReqWrapper(d.getDeviceHandler, "deviceName", d.errHandler))
-	d.server.AddHandler("GET", "/receive/:deviceName", recvIRReqWrapper(d.receiveIRHandler, "deviceName", d.errHandler))
-	d.server.AddHandler("POST", "/send/:deviceName", sendIRReqWrapper(d.sendIRHandler, "deviceName", d.errHandler))
+	d.server.AddHandler("GET", "/devices", respWrapper(getDevsReqWrapper(d.getDevicesHandler), d.errHandler))
+	d.server.AddHandler("GET", "/devices/:deviceName", respWrapper(getDevReqWrapper(d.getDeviceHandler, "deviceName"), d.errHandler))
+	d.server.AddHandler("GET", "/receive/:deviceName", respWrapper(recvIRReqWrapper(d.receiveIRHandler, "deviceName"), d.errHandler))
+	d.server.AddHandler("POST", "/send/:deviceName", respWrapper(sendIRReqWrapper(d.sendIRHandler, "deviceName"), d.errHandler))
 	return &d
 }
 

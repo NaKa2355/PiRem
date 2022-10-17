@@ -8,23 +8,13 @@ import (
 )
 
 // net/httpのハンドラ関数をラップして扱いやすくする
-func getDevsReqWrapper(handler func() (irdevice.Devices, error), errHandler func(error)) server.HandlerFunc {
-	f := func(w http.ResponseWriter, r *http.Request, pathParam map[string]string) {
+func getDevsReqWrapper(handler func() (irdevice.Devices, error)) server.ReqHandlerFunc {
+	f := func(r *http.Request, pathParam map[string]string) ([]byte, error) {
 		devices, err := handler()
 		if err != nil {
-			sendError(err, w, http.StatusInternalServerError, errHandler)
-			return
+			return []byte(""), err
 		}
-
-		resp, err := json.Marshal(devices)
-		if err != nil {
-			sendError(err, w, http.StatusInternalServerError, errHandler)
-			return
-		}
-
-		w.Header().Add("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write(resp)
+		return json.Marshal(devices)
 	}
 	return f
 }

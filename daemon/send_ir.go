@@ -11,27 +11,25 @@ import (
 )
 
 // net/httpのハンドラ関数をラップして扱いやすくする
-func sendIRReqWrapper(handler func(irdata.Data, string) error, paramKey string, errHandler func(error)) server.HandlerFunc {
-	f := func(w http.ResponseWriter, r *http.Request, pathParam map[string]string) {
+func sendIRReqWrapper(handler func(irdata.Data, string) error, paramKey string) server.ReqHandlerFunc {
+	f := func(r *http.Request, pathParam map[string]string) ([]byte, error) {
+		body := []byte("")
 		req, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			sendError(err, w, http.StatusInternalServerError, errHandler)
-			return
+			return body, err
 		}
 
 		irData := irdata.Data{}
 		err = json.Unmarshal(req, &irData)
 		if err != nil {
-			sendError(err, w, http.StatusBadRequest, errHandler)
-			return
+			return body, err
 		}
 
 		err = handler(irData, pathParam[paramKey])
 		if err != nil {
-			sendError(err, w, http.StatusInternalServerError, errHandler)
-			return
+			return body, err
 		}
-		w.WriteHeader(http.StatusOK)
+		return body, nil
 	}
 	return f
 }

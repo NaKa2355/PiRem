@@ -65,7 +65,7 @@ func NewServer(port uint32, errorHandler func(error)) *Server {
 	return &s
 }
 
-func (s *Server) AddHandler(method string, path string, handler HandlerFunc) {
+func (s *Server) AddHandler(method string, path string, handler RespHandlerFunc) {
 	h := Handler{
 		method:  method,
 		path:    strings.Split(path, "/"),
