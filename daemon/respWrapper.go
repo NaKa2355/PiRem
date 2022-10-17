@@ -33,8 +33,8 @@ func respWrapper(handler server.ReqHandlerFunc, errHandler func(error)) server.R
 			return
 		}
 
-		w.Header().Add("Content-Type", "application/json")
 		w.Write(strResp)
+		w.Header().Add("Content-Type", "application/json")
 	}
 	return f
 }
